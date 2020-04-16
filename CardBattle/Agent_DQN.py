@@ -28,7 +28,7 @@ class ReplayMemory(object):
         for i in range(batch_size):
             ReturnSample.extend(random.sample(self.memory, 1))
 
-        return np.array(ReturnSample)
+        return ReturnSample
 
     def length(self):
         return len(self.memory)
