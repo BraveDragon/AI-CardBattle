@@ -24,7 +24,11 @@ class ReplayMemory(object):
         self.memory.append(experience)
     
     def sample(self,batch_size):
-        return random.sample(self.memory, batch_size)
+        ReturnSample = []
+        for i in range(batch_size):
+            ReturnSample.extend(random.sample(self.memory, 1))
+
+        return np.array(ReturnSample)
 
     def length(self):
         return len(self.memory)
@@ -158,14 +162,23 @@ for episode in range(episodes+1):
             #ReplayMemoryに格納(1Pから)
             Experience1P = []
             Experience2P = []
+            action1P = action1P.tolist()
+            Reward1P = [float(Reward1P)]
             Experience1P.extend(State1P)
             Experience1P.extend(action1P)
-            Experience1P.append(Reward1P)
+            Experience1P.extend(Reward1P)
             Experience1P.extend(NextState1P)
+            # print(type(State1P))
+            # print(type(action1P))
+            # print(type(Reward1P))
+            # print(type(NextState1P))
+            # print("")
             #2Pも同様に格納
+            action2P = action2P.tolist()
+            Reward2P = [float(Reward2P)]
             Experience2P.extend(State2P)
             Experience2P.extend(action2P)
-            Experience2P.append(Reward2P)
+            Experience2P.extend(Reward2P)
             Experience2P.extend(NextState2P)
             Memory_1P.load(Experience1P)
             Memory_2P.load(Experience2P)
@@ -176,10 +189,9 @@ for episode in range(episodes+1):
             Ret_Inputs = Memory_1P.sample(batch_size)
             Inputs = []
             for Ret_Input in Ret_Inputs:
-                Inputs.extend(Ret_Inputs)
-            Inputs = np.array(Inputs)
-            Output_Train = Model1P(torch.from_numpy(np.array(Inputs.flat)))
-            Output_Target = Model1P_Target(torch.from_numpy(np.array(Inputs.flat)))
+                Inputs.extend(Ret_Input)
+            Output_Train = Model1P(torch.from_numpy(np.array(Inputs)))
+            Output_Target = Model1P_Target(torch.from_numpy(np.array(Inputs)))
             criterion(Output_Train,Output_Target)
             optimizer.zero_grad()
             loss1P.backward()
@@ -194,13 +206,13 @@ for episode in range(episodes+1):
                 Experience1P = []
                 Experience2P = []
                 Experience1P.extend(State1P)
-                Experience1P.extend(action1P)
-                Experience1P.append(Reward1P)
+                Experience1P.extend(action1P.tolist())
+                Experience1P.extend(Reward1P)
                 Experience1P.extend(NextState1P)
                 #2Pも同様に格納
                 Experience2P.extend(State2P)
                 Experience2P.extend(action2P)
-                Experience2P.append(Reward2P)
+                Experience2P.extend(Reward2P)
                 Experience2P.extend(NextState2P)
                 Memory_1P.load(Experience1P)
                 Memory_2P.load(Experience2P)
