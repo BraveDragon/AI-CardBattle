@@ -12,6 +12,7 @@ import numpy as np
 from collections import deque
 from collections import namedtuple
 import random
+import DQNModel
 
 #必要なクラス等を定義
 #ReplayMemory用のクラス
@@ -28,28 +29,18 @@ class ReplayMemory(object):
     def length(self):
         return len(self.memory)
 
-#学習に使用するモデル
-Model = nn.Sequential(
-                    nn.Linear(in_features=27,out_features=54),
-                    nn.ReLU(),
-                    nn.Linear(in_features=54,out_features=108),
-                    nn.ReLU(),
-                    nn.Linear(in_features=108,out_features=216),
-                    nn.ReLU(),
-                    nn.Linear(in_features=216,out_features=5),
-                    nn.Softmax(dim=0)
-                    )
+
 #更新対象となるネットワーク 
-Model1P = Model
-Model2P = Model
+Model1P = DQNModel.Model
+Model2P = DQNModel.Model
 #更新を計算するためのモデル
-Model1P_Target = Model
-Model2P_Target = Model
+Model1P_Target = DQNModel.Model
+Model2P_Target = DQNModel.Model
 #ここからが実際の学習のコード
 # TODO:Replay Memoryの実装
 # TODO:誤差逆伝播
 
-optimizer = optim.Adam(Model.parameters(),lr=0.001,weight_decay=0.005)
+optimizer = optim.Adam(DQNModel.Model.parameters(),lr=0.001,weight_decay=0.005)
 
 MaxSteps = 500
 episodes = 10000
@@ -61,6 +52,7 @@ eps_end = 0.01
 eps_reduce_rate = 0.001
 memory_size = 10000
 batch_size = 32
+JustLooking = 10
 #ReplayMemory
 Memory_1P = ReplayMemory(memory_size)
 Memory_2P = ReplayMemory(memory_size)
@@ -99,9 +91,16 @@ for episode in range(episodes+1):
     #順伝播
     out1P = Model1P_Target(torch.from_numpy(np.array(observatiuons_from_step_results[0])))
     out2P = Model2P_Target(torch.from_numpy(np.array(observatiuons_from_step_results[1])))
-    #TODO:ターゲットをどうするか
-    loss1P = criterion(out1P,out1P)
-    loss2P = criterion(out2P,out2P)
+    if TotalStep == 0:
+        #一番最初は楽観的初期化する
+        target1P = torch.ones(len(observatiuons_from_step_results[0]))
+        target2P = torch.ones(len(observatiuons_from_step_results[1]))
+    else:
+        target1P = Model1P(observatiuons_from_step_results[0])
+        target2P = Model2P(observatiuons_from_step_results[1])
+    
+    loss1P = criterion(out1P,target1P)
+    loss2P = criterion(out2P,target2P)
     optimizer.zero_grad()
     loss1P.backward()
     loss2P.backward()
@@ -155,38 +154,53 @@ for episode in range(episodes+1):
         #「次の状態」を格納
         NextState1P = observatiuons_from_step_results[0]
         NextState2P = observatiuons_from_step_results[1]
-        if CurrentStep > batch_size:
+        if CurrentStep > JustLooking:
             #ReplayMemoryに格納(1Pから)
             Experience1P = []
             Experience2P = []
             Experience1P.extend(State1P)
             Experience1P.extend(action1P)
-            Experience1P.extend(Reward1P)
+            Experience1P.append(Reward1P)
             Experience1P.extend(NextState1P)
             #2Pも同様に格納
             Experience2P.extend(State2P)
             Experience2P.extend(action2P)
-            Experience2P.extend(Reward2P)
+            Experience2P.append(Reward2P)
             Experience2P.extend(NextState2P)
             Memory_1P.load(Experience1P)
             Memory_2P.load(Experience2P)
-
+            pass
+        State1P = NextState1P
+        State2P = NextState2P
+        if Memory_1P.length() > batch_size:
+            Ret_Inputs = Memory_1P.sample(batch_size)
+            Inputs = []
+            for Ret_Input in Ret_Inputs:
+                Inputs.extend(Ret_Inputs)
+            Inputs = np.array(Inputs)
+            Output_Train = Model1P(torch.from_numpy(np.array(Inputs.flat)))
+            Output_Target = Model1P_Target(torch.from_numpy(np.array(Inputs.flat)))
+            criterion(Output_Train,Output_Target)
+            optimizer.zero_grad()
+            loss1P.backward()
+            loss2P.backward()
+            optimizer.step()
         #エピソード完了時
         if batched_step_results[0].done == True or batched_step_results[1].done == True:
             NextState1P = np.zeros(observatiuons_from_step_results[0].shape)
             NextState2P = np.zeros(observatiuons_from_step_results[1].shape)
-            if CurrentStep > batch_size:
+            if CurrentStep > JustLooking:
                 #ReplayMemoryに格納(1Pから)
                 Experience1P = []
                 Experience2P = []
                 Experience1P.extend(State1P)
                 Experience1P.extend(action1P)
-                Experience1P.extend(Reward1P)
+                Experience1P.append(Reward1P)
                 Experience1P.extend(NextState1P)
                 #2Pも同様に格納
                 Experience2P.extend(State2P)
                 Experience2P.extend(action2P)
-                Experience2P.extend(Reward2P)
+                Experience2P.append(Reward2P)
                 Experience2P.extend(NextState2P)
                 Memory_1P.load(Experience1P)
                 Memory_2P.load(Experience2P)
@@ -194,3 +208,5 @@ for episode in range(episodes+1):
 
 #環境のシャットダウン(プログラム終了)
 env.close()
+torch.save(Model1P.state_dict(),"Model/")
+torch.save(Model2P.state_dict(),"Model/")
