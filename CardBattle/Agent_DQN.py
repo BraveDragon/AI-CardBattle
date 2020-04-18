@@ -1,7 +1,4 @@
 #coding: "utf-8"
-#このソースコードは以下のサイトを参考に作成
-# Reinforcement Learning (DQN) Tutorial — PyTorch Tutorials 1.4.0 documentation
-# URL : https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 from mlagents_envs.environment import UnityEnvironment
 import torch
 import torch.nn as nn
@@ -33,7 +30,9 @@ class ReplayMemory(object):
     def length(self):
         return len(self.memory)
 
-
+#TODO:GPU対応
+#TODO:ELOや類似の手法による評価の出力
+#TODO:Unity側から呼び出しても問題ないようにモデル形式を変換
 #更新対象となるネットワーク 
 Model1P = DQNModel.Model
 Model2P = DQNModel.Model
@@ -41,9 +40,6 @@ Model2P = DQNModel.Model
 Model1P_Target = DQNModel.Model
 Model2P_Target = DQNModel.Model
 #ここからが実際の学習のコード
-# TODO:Replay Memoryの実装
-# TODO:誤差逆伝播
-
 optimizer = optim.Adam(DQNModel.Model.parameters(),lr=0.001,weight_decay=0.005)
 
 MaxSteps = 500
@@ -70,45 +66,28 @@ env = UnityEnvironment(file_name="CardBattle", base_port=5005,side_channels=[])
 env.reset()
 #エージェントグループのリストを取得(グループ数は時間とともに変化する可能性があるが、今回は変化しないと分かっているのでループの外に出す)
 agent_groups = env.get_agent_groups()
+
 for episode in range(episodes+1):
     CurrentStep = 0
-    #必要なデータを取得(本当は関数化したいが上手くいかないので直書き)
-    #エージェントの状態を取得
-    agent_group_specs = [env.get_agent_group_spec(agentgroup) for agentgroup in agent_groups]
-    #各エージェントごとのBatchedStepResultを取得
-    batched_step_results = [env.get_step_result(agentgroup) for agentgroup in agent_groups]
-    agent_ids = [batched_step_result.agent_id for batched_step_result in batched_step_results] 
-    #各エージェントごとのStepResultを取得
-    step_results = [batched_step_results[int(agent_id)].get_agent_step_result(int(agent_id)) for agent_id in agent_ids]
-    #observation値を取得
-    observatiuons_from_batched_step_results = [batched_step_result.obs for batched_step_result in batched_step_results]
-    observatiuons_from_step_results = [step_result.obs for step_result in step_results]
-    #報酬を取得
-    rewards_from_batched_step_results = [batched_step_result.reward for batched_step_result in batched_step_results]
-    rewards_from_step_results = [step_result.reward for step_result in step_results]
-    Input1P = observatiuons_from_step_results[0]
-    Input2P = observatiuons_from_step_results[1]
-    ret_action1P = Model1P(torch.from_numpy(np.array(Input1P)))
-    ret_action2P = Model2P(torch.from_numpy(np.array(Input2P)))
     #ここからターゲットネットワークの訓練
-    #TODO:入力をReplayMemoryに
-    #順伝播
-    out1P = Model1P_Target(torch.from_numpy(np.array(observatiuons_from_step_results[0])))
-    out2P = Model2P_Target(torch.from_numpy(np.array(observatiuons_from_step_results[1])))
     if TotalStep == 0:
         #一番最初は楽観的初期化する
-        target1P = torch.ones(len(observatiuons_from_step_results[0]))
-        target2P = torch.ones(len(observatiuons_from_step_results[1]))
+        target1P = torch.ones(DQNModel.Outputs)
+        target2P = torch.ones(DQNModel.Outputs)
+        out1P = Model1P_Target(torch.ones(DQNModel.Inputs))
+        out2P = Model2P_Target(torch.ones(DQNModel.Inputs))
+        loss1P = criterion(out1P,target1P)
+        loss2P = criterion(out2P,target2P)
+        optimizer.zero_grad()
+        loss1P.backward(retain_graph=True)
+        loss2P.backward(retain_graph=True)
+        optimizer.step()
     else:
-        target1P = Model1P(observatiuons_from_step_results[0])
-        target2P = Model2P(observatiuons_from_step_results[1])
+        # target1P = Model1P(observatiuons_from_step_results[0])
+        # target2P = Model2P(observatiuons_from_step_results[1])
+        Model1P_Target.load_state_dict(Model1P.state_dict())
+        Model2P_Target.load_state_dict(Model2P.state_dict())
     
-    loss1P = criterion(out1P,target1P)
-    loss2P = criterion(out2P,target2P)
-    optimizer.zero_grad()
-    loss1P.backward()
-    loss2P.backward()
-    optimizer.step()
     for i in range(MaxSteps):
         CurrentStep += 1
         TotalStep += 1
@@ -122,7 +101,7 @@ for episode in range(episodes+1):
         agent_ids = [batched_step_result.agent_id for batched_step_result in batched_step_results] 
         #各エージェントごとのStepResultを取得
         step_results = [batched_step_results[int(agent_id)].get_agent_step_result(int(agent_id)) for agent_id in agent_ids]
-        #observation値を取得 (状態となる)
+        #observation値を取得 (状態に相当)
         #observatiuons_from_batched_step_results = [batched_step_result.obs for batched_step_result in batched_step_results]
         observatiuons_from_step_results = [step_result.obs for step_result in step_results]
         #報酬を取得
@@ -132,28 +111,61 @@ for episode in range(episodes+1):
         Reward2P = rewards_from_step_results[1]
         State1P = observatiuons_from_step_results[0]
         State2P = observatiuons_from_step_results[1]
-        ret_action1P = Model1P(torch.from_numpy(np.array(State1P)))
-        ret_action2P = Model2P(torch.from_numpy(np.array(State2P)))
 
         if epsiron > np.random.rand():
             action1P = np.random.randn(5)
             action2P = np.random.randn(5)
-        else:
+        elif Memory_1P.length() > batch_size and Memory_2P.length() > batch_size:
+            Raw_Inputs1P = Memory_1P.sample(batch_size)
+            Inputs1P = []
+            for Ret_Input1P in range(len(Ret_Inputs1P)):
+                Inputs1P.extend(Ret_Inputs1P[Ret_Input1P])
+            Inputs1P = np.array(Inputs1P)
+            Load_Inputs1P = []
+            for Input_itr in Inputs1P:
+                if hasattr(Input_itr, "__iter__"):
+                    Load_Inputs1P.extend(Input_itr)
+                else:
+                    Load_Inputs1P.append(Input_itr)
+            Load_Inputs1P = np.array(Load_Inputs1P,dtype=np.float32)
+            ret_action1P = Model1P(torch.from_numpy(Load_Inputs1P))
+
+            Raw_Input2P = Memory_2P.sample(batch_size)
+            Inputs2P = []
+            for Ret_Input2P in range(len(Raw_Input2P)):
+                Inputs2P.extend(Raw_Input2P[Ret_Input2P])
+            Inputs2P = np.array(Inputs2P)
+            Load_Inputs2P = []
+            for Input_itr in Inputs2P:
+                if hasattr(Input_itr, "__iter__"):
+                    Load_Inputs2P.extend(Input_itr)
+                else:
+                    Load_Inputs2P.append(Input_itr)
+            Load_Inputs2P = np.array(Load_Inputs2P,dtype=np.float32)
+            ret_action2P = Model2P(torch.from_numpy(Load_Inputs2P))
+
             action1P = ret_action1P.detach().clone().numpy()
             action2P = ret_action2P.detach().clone().numpy()
-            action1P = action1P[0]
-            action2P = action2P[0]
+            #action1P = action1P[0]
+            #action2P = action2P[0]
         #エージェントごとに行動を指定
-        env.set_action_for_agent(agent_groups[0],agent_ids[0],action1P)
-        env.set_action_for_agent(agent_groups[1],agent_ids[1],action2P)
+        env.set_action_for_agent(agent_groups[0],agent_ids[0],np.array(action1P))
+        env.set_action_for_agent(agent_groups[1],agent_ids[1],np.array(action2P))
         #環境を１ステップ進める
-        env.step()
+        try:
+            env.step()
+        except:
+            #ゲームが外部から切られたら保存して終了する
+            torch.save(Model1P.state_dict(),"Model/Model1P")
+            torch.save(Model2P.state_dict(),"Model/Model2P")
+            exit()
+
         #各エージェントごとのBatchedStepResultを取得
         batched_step_results = [env.get_step_result(agentgroup) for agentgroup in agent_groups]
         agent_ids = [batched_step_result.agent_id for batched_step_result in batched_step_results] 
         #各エージェントごとのStepResultを取得
         step_results = [batched_step_results[int(agent_id)].get_agent_step_result(int(agent_id)) for agent_id in agent_ids]
-        #observation値を取得 (状態となる)
+        #observation値を取得 (状態に相当)
         observatiuons_from_step_results = [step_result.obs for step_result in step_results]
         #「次の状態」を格納
         NextState1P = observatiuons_from_step_results[0]
@@ -162,19 +174,12 @@ for episode in range(episodes+1):
             #ReplayMemoryに格納(1Pから)
             Experience1P = []
             Experience2P = []
-            action1P = action1P.tolist()
             Reward1P = [float(Reward1P)]
             Experience1P.extend(State1P)
             Experience1P.extend(action1P)
             Experience1P.extend(Reward1P)
             Experience1P.extend(NextState1P)
-            # print(type(State1P))
-            # print(type(action1P))
-            # print(type(Reward1P))
-            # print(type(NextState1P))
-            # print("")
             #2Pも同様に格納
-            action2P = action2P.tolist()
             Reward2P = [float(Reward2P)]
             Experience2P.extend(State2P)
             Experience2P.extend(action2P)
@@ -186,16 +191,42 @@ for episode in range(episodes+1):
         State1P = NextState1P
         State2P = NextState2P
         if Memory_1P.length() > batch_size:
-            Ret_Inputs = Memory_1P.sample(batch_size)
-            Inputs = []
-            for Ret_Input in Ret_Inputs:
-                Inputs.extend(Ret_Input)
-            Output_Train = Model1P(torch.from_numpy(np.array(Inputs)))
-            Output_Target = Model1P_Target(torch.from_numpy(np.array(Inputs)))
+            Ret_Inputs1P = Memory_1P.sample(batch_size)
+            Inputs1P = []
+            for Ret_Input in range(len(Ret_Inputs1P)):
+                Inputs1P.extend(Ret_Inputs1P[Ret_Input])
+            Inputs1P = np.array(Inputs1P)
+            Load_Inputs1P = []
+            for Input_itr in Inputs1P:
+                if hasattr(Input_itr, "__iter__"):
+                    Load_Inputs1P.extend(Input_itr)
+                else:
+                    Load_Inputs1P.append(Input_itr)
+            Load_Inputs1P = np.array(Load_Inputs1P,dtype=np.float32)
+            Output_Train = Model1P(torch.from_numpy(Load_Inputs1P))
+            Output_Target = Model1P_Target(torch.from_numpy(Load_Inputs1P))
             criterion(Output_Train,Output_Target)
             optimizer.zero_grad()
-            loss1P.backward()
-            loss2P.backward()
+            loss1P.backward(retain_graph=True)
+            optimizer.step()
+        if Memory_2P.length() > batch_size:
+            Ret_Inputs = Memory_2P.sample(batch_size)
+            Inputs2P = []
+            for Ret_Input in range(len(Ret_Inputs)):
+                Inputs2P.extend(Ret_Inputs[Ret_Input])
+            Inputs2P = np.array(Inputs2P)
+            Load_Inputs2P = []
+            for Input_itr in Inputs2P:
+                if hasattr(Input_itr, "__iter__"):
+                    Load_Inputs2P.extend(Input_itr)
+                else:
+                    Load_Inputs2P.append(Input_itr)
+            Load_Inputs2P = np.array(Load_Inputs2P,dtype=np.float32)
+            Output_Train = Model2P(torch.from_numpy(Load_Inputs2P))
+            Output_Target = Model2P_Target(torch.from_numpy(Load_Inputs2P))
+            criterion(Output_Train,Output_Target)
+            optimizer.zero_grad()
+            loss2P.backward(retain_graph=True)
             optimizer.step()
         #エピソード完了時
         if batched_step_results[0].done == True or batched_step_results[1].done == True:
@@ -217,8 +248,8 @@ for episode in range(episodes+1):
                 Memory_1P.load(Experience1P)
                 Memory_2P.load(Experience2P)
                
-
+#モデルを保存
+torch.save(Model1P.state_dict(),"Model/Model1P")
+torch.save(Model2P.state_dict(),"Model/Model2P")
 #環境のシャットダウン(プログラム終了)
 env.close()
-torch.save(Model1P.state_dict(),"Model/")
-torch.save(Model2P.state_dict(),"Model/")
