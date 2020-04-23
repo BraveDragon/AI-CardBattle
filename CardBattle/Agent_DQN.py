@@ -83,8 +83,8 @@ for episode in range(episodes+1):
         loss2P.backward(retain_graph=True)
         optimizer.step()
     else:
-        # target1P = Model1P(observatiuons_from_step_results[0])
-        # target2P = Model2P(observatiuons_from_step_results[1])
+        # target1P = Model1P(observations_from_step_results[0])
+        # target2P = Model2P(observations_from_step_results[1])
         Model1P_Target.load_state_dict(Model1P.state_dict())
         Model2P_Target.load_state_dict(Model2P.state_dict())
     
@@ -102,15 +102,15 @@ for episode in range(episodes+1):
         #各エージェントごとのStepResultを取得
         step_results = [batched_step_results[int(agent_id)].get_agent_step_result(int(agent_id)) for agent_id in agent_ids]
         #observation値を取得 (状態に相当)
-        #observatiuons_from_batched_step_results = [batched_step_result.obs for batched_step_result in batched_step_results]
-        observatiuons_from_step_results = [step_result.obs for step_result in step_results]
+        #observations_from_batched_step_results = [batched_step_result.obs for batched_step_result in batched_step_results]
+        observations_from_step_results = [step_result.obs for step_result in step_results]
         #報酬を取得
         #rewards_from_batched_step_results = [batched_step_result.reward for batched_step_result in batched_step_results]
         rewards_from_step_results = [step_result.reward for step_result in step_results]
         Reward1P = rewards_from_step_results[0]
         Reward2P = rewards_from_step_results[1]
-        State1P = observatiuons_from_step_results[0]
-        State2P = observatiuons_from_step_results[1]
+        State1P = observations_from_step_results[0]
+        State2P = observations_from_step_results[1]
 
         if epsiron > np.random.rand():
             action1P = np.random.randn(5)
@@ -166,10 +166,10 @@ for episode in range(episodes+1):
         #各エージェントごとのStepResultを取得
         step_results = [batched_step_results[int(agent_id)].get_agent_step_result(int(agent_id)) for agent_id in agent_ids]
         #observation値を取得 (状態に相当)
-        observatiuons_from_step_results = [step_result.obs for step_result in step_results]
+        observations_from_step_results = [step_result.obs for step_result in step_results]
         #「次の状態」を格納
-        NextState1P = observatiuons_from_step_results[0]
-        NextState2P = observatiuons_from_step_results[1]
+        NextState1P = observations_from_step_results[0]
+        NextState2P = observations_from_step_results[1]
         if CurrentStep > JustLooking:
             #ReplayMemoryに格納(1Pから)
             Experience1P = []
@@ -230,8 +230,8 @@ for episode in range(episodes+1):
             optimizer.step()
         #エピソード完了時
         if batched_step_results[0].done == True or batched_step_results[1].done == True:
-            NextState1P = np.zeros(observatiuons_from_step_results[0].shape)
-            NextState2P = np.zeros(observatiuons_from_step_results[1].shape)
+            NextState1P = np.zeros(observations_from_step_results[0].shape)
+            NextState2P = np.zeros(observations_from_step_results[1].shape)
             if CurrentStep > JustLooking:
                 #ReplayMemoryに格納(1Pから)
                 Experience1P = []
