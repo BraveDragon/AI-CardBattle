@@ -1,4 +1,5 @@
 #coding: "utf-8"
+#1P: ε-zero 2P: DQN
 from mlagents_envs.environment import UnityEnvironment
 import torch
 import torch.nn as nn
@@ -9,7 +10,8 @@ import numpy as np
 from collections import deque
 from collections import namedtuple
 import random
-import DQNModel_Throogh
+import DQNModel
+import EZeroModel
 #ELOレーティング用のライブラリ(MITライセンスなので多分大丈夫だがライセンスは要確認)
 from elote import EloCompetitor
 
@@ -32,12 +34,11 @@ class ReplayMemory(object):
     def length(self):
         return len(self.memory)
 
-#TODO:ELOや類似の手法による評価の出力
 #TODO:Unity側から呼び出しても問題ないようにモデル形式を変換
+#更新対象となるネットワーク
 Devise = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#更新対象となるネットワーク 
-Model1P = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs, DQNModel_Throogh.Outputs).to(Devise)
-Model2P = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs, DQNModel_Throogh.Outputs).to(Devise)
+Model1P = EZeroModel.Model.to(Devise)
+Model2P = DQNModel.Model.to(Devise)
 #レーティング評価を行うためのクラス
 Agent1P = EloCompetitor()
 Agent2P = EloCompetitor()
@@ -46,12 +47,11 @@ GameCount = 0
 #何回目のゲームごとに結果を出力するか
 GameCount_ResultView = 10
 #更新を計算するためのモデル
-Model1P_Target = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs,DQNModel_Throogh.Outputs).to(Devise)
-Model2P_Target = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs,DQNModel_Throogh.Outputs).to(Devise)
-Model1P_Target.eval()
-Model2P_Target.eval()
+Model1P_Target = EZeroModel.Model.to(Devise)
+Model2P_Target = DQNModel.Model.to(Devise)
 #ここからが実際の学習のコード
-optimizer = optim.RMSprop(Model1P.parameters(),lr=1e-4)
+optimizer1P = optim.Adam(EZeroModel.Model.parameters(),lr=0.001,weight_decay=0.005)
+optimizer2P = optim.Adam(DQNModel.Model.parameters(),lr=0.001,weight_decay=0.005)
 MaxSteps = 500
 episodes = 10000
 CurrentStep = 0
@@ -82,17 +82,21 @@ for episode in range(episodes+1):
     #ここからターゲットネットワークの訓練
     if TotalStep == 0:
         #一番最初は楽観的初期化する
-        target1P = torch.ones(DQNModel_Throogh.Outputs)
-        target2P = torch.ones(DQNModel_Throogh.Outputs)
-        out1P = Model1P_Target(torch.ones(DQNModel_Throogh.Inputs))
-        out2P = Model2P_Target(torch.ones(DQNModel_Throogh.Inputs))
+        target1P = torch.ones(EZeroModel.Outputs)
+        target2P = torch.ones(DQNModel.Outputs)
+        out1P = Model1P_Target(torch.ones(EZeroModel.Inputs))
+        out2P = Model2P_Target(torch.ones(DQNModel.Inputs))
         loss1P = criterion(out1P,target1P)
         loss2P = criterion(out2P,target2P)
-        optimizer.zero_grad()
+        optimizer1P.zero_grad()
+        optimizer2P.zero_grad()
         loss1P.backward(retain_graph=True)
         loss2P.backward(retain_graph=True)
-        optimizer.step()
+        optimizer1P.step()
+        optimizer2P.step()
     else:
+        # target1P = Model1P(observations_from_step_results[0])
+        # target2P = Model2P(observations_from_step_results[1])
         Model1P_Target.load_state_dict(Model1P.state_dict())
         Model2P_Target.load_state_dict(Model2P.state_dict())
     
@@ -165,8 +169,8 @@ for episode in range(episodes+1):
 
             action1P = ret_action1P.detach().clone().numpy()
             action2P = ret_action2P.detach().clone().numpy()
-            action1P = action1P[0]
-            action2P = action2P[0]
+            #action1P = action1P[0]
+            #action2P = action2P[0]
         #エージェントごとに行動を指定
         env.set_action_for_agent(agent_groups[0],agent_ids[0],np.array(action1P))
         env.set_action_for_agent(agent_groups[1],agent_ids[1],np.array(action2P))
@@ -175,8 +179,8 @@ for episode in range(episodes+1):
             env.step()
         except:
             #ゲームが外部から切られたら保存して終了する
-            torch.save(Model1P.state_dict(),"Model_Throough/Model1P")
-            torch.save(Model2P.state_dict(),"Model_Throough/Model2P")
+            torch.save(Model1P.state_dict(),"Model/Model1P_EZero")
+            torch.save(Model2P.state_dict(),"Model/Model2P_DQN")
             exit()
 
         #各エージェントごとのBatchedStepResultを取得
@@ -225,9 +229,11 @@ for episode in range(episodes+1):
             Output_Train = Model1P(torch.from_numpy(Load_Inputs1P))
             Output_Target = Model1P_Target(torch.from_numpy(Load_Inputs1P))
             criterion(Output_Train,Output_Target)
-            optimizer.zero_grad()
+            optimizer1P.zero_grad()
+            optimizer2P.zero_grad()
             loss1P.backward(retain_graph=True)
-            optimizer.step()
+            optimizer1P.step()
+            optimizer2P.step()
         if Memory_2P.length() > batch_size:
             Ret_Inputs = Memory_2P.sample(batch_size)
             Inputs2P = []
@@ -244,9 +250,11 @@ for episode in range(episodes+1):
             Output_Train = Model2P(torch.from_numpy(Load_Inputs2P))
             Output_Target = Model2P_Target(torch.from_numpy(Load_Inputs2P))
             criterion(Output_Train,Output_Target)
-            optimizer.zero_grad()
+            optimizer1P.zero_grad()
+            optimizer2P.zero_grad()
             loss2P.backward(retain_graph=True)
-            optimizer.step()
+            optimizer1P.step()
+            optimizer2P.step()
         #エピソード完了時
         if batched_step_results[0].done == True or batched_step_results[1].done == True:
             NextState1P = np.zeros(observations_from_step_results[0].shape)
@@ -268,7 +276,7 @@ for episode in range(episodes+1):
                 Memory_2P.load(Experience2P)
                
 #モデルを保存
-torch.save(Model1P.state_dict(),"Model_Throough/Model1P")
-torch.save(Model2P.state_dict(),"Model_Throough/Model2P")
+torch.save(Model1P.state_dict(),"Model/Model1P_EZero")
+torch.save(Model2P.state_dict(),"Model/Model2P_DQN")
 #環境のシャットダウン(プログラム終了)
 env.close()

@@ -129,8 +129,6 @@ for episode in range(episodes+1):
              GameCount += 1
         #レーティングを表示
         if GameCount > GameCount_ResultView:
-             rating1P = 7.2 % Agent1P.rating
-             rating2P = 7.2 % Agent2P.rating
              print("Rating : " + str(Agent1P.rating) + " | " + str(Agent2P.rating) )
              GameCount = 0
         if epsiron > np.random.rand():
