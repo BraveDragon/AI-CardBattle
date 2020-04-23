@@ -9,7 +9,7 @@ import numpy as np
 from collections import deque
 from collections import namedtuple
 import random
-import DQNModel
+import DQNModel_Throogh
 #ELOレーティング用のライブラリ(MITライセンスなので多分大丈夫だがライセンスは要確認)
 from elote import EloCompetitor
 
@@ -32,11 +32,12 @@ class ReplayMemory(object):
     def length(self):
         return len(self.memory)
 
+#TODO:ELOや類似の手法による評価の出力
 #TODO:Unity側から呼び出しても問題ないようにモデル形式を変換
-#更新対象となるネットワーク
 Devise = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-Model1P = DQNModel.Model.to(Devise)
-Model2P = DQNModel.Model.to(Devise)
+#更新対象となるネットワーク 
+Model1P = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs, DQNModel_Throogh.Outputs).to(Devise)
+Model2P = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs, DQNModel_Throogh.Outputs).to(Devise)
 #レーティング評価を行うためのクラス
 Agent1P = EloCompetitor()
 Agent2P = EloCompetitor()
@@ -45,11 +46,12 @@ GameCount = 0
 #何回目のゲームごとに結果を出力するか
 GameCount_ResultView = 10
 #更新を計算するためのモデル
-Model1P_Target = DQNModel.Model.to(Devise)
-Model2P_Target = DQNModel.Model.to(Devise)
+Model1P_Target = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs,DQNModel_Throogh.Outputs).to(Devise)
+Model2P_Target = DQNModel_Throogh.DQN(DQNModel_Throogh.Inputs,DQNModel_Throogh.Outputs).to(Devise)
+Model1P_Target.eval()
+Model2P_Target.eval()
 #ここからが実際の学習のコード
-optimizer = optim.Adam(DQNModel.Model.parameters(),lr=0.001,weight_decay=0.005)
-
+optimizer = optim.RMSprop(Model1P.parameters(),lr=1e-4)
 MaxSteps = 500
 episodes = 10000
 CurrentStep = 0
@@ -80,10 +82,10 @@ for episode in range(episodes+1):
     #ここからターゲットネットワークの訓練
     if TotalStep == 0:
         #一番最初は楽観的初期化する
-        target1P = torch.ones(DQNModel.Outputs)
-        target2P = torch.ones(DQNModel.Outputs)
-        out1P = Model1P_Target(torch.ones(DQNModel.Inputs))
-        out2P = Model2P_Target(torch.ones(DQNModel.Inputs))
+        target1P = torch.ones(DQNModel_Throogh.Outputs)
+        target2P = torch.ones(DQNModel_Throogh.Outputs)
+        out1P = Model1P_Target(torch.ones(DQNModel_Throogh.Inputs))
+        out2P = Model2P_Target(torch.ones(DQNModel_Throogh.Inputs))
         loss1P = criterion(out1P,target1P)
         loss2P = criterion(out2P,target2P)
         optimizer.zero_grad()
@@ -91,8 +93,6 @@ for episode in range(episodes+1):
         loss2P.backward(retain_graph=True)
         optimizer.step()
     else:
-        # target1P = Model1P(observations_from_step_results[0])
-        # target2P = Model2P(observations_from_step_results[1])
         Model1P_Target.load_state_dict(Model1P.state_dict())
         Model2P_Target.load_state_dict(Model2P.state_dict())
     
@@ -167,8 +167,8 @@ for episode in range(episodes+1):
 
             action1P = ret_action1P.detach().clone().numpy()
             action2P = ret_action2P.detach().clone().numpy()
-            #action1P = action1P[0]
-            #action2P = action2P[0]
+            action1P = action1P[0]
+            action2P = action2P[0]
         #エージェントごとに行動を指定
         env.set_action_for_agent(agent_groups[0],agent_ids[0],np.array(action1P))
         env.set_action_for_agent(agent_groups[1],agent_ids[1],np.array(action2P))
@@ -177,8 +177,8 @@ for episode in range(episodes+1):
             env.step()
         except:
             #ゲームが外部から切られたら保存して終了する
-            torch.save(Model1P.state_dict(),"Model/Model1P")
-            torch.save(Model2P.state_dict(),"Model/Model2P")
+            torch.save(Model1P.state_dict(),"Model_Throough/Model1P")
+            torch.save(Model2P.state_dict(),"Model_Throough/Model2P")
             exit()
 
         #各エージェントごとのBatchedStepResultを取得
@@ -270,7 +270,7 @@ for episode in range(episodes+1):
                 Memory_2P.load(Experience2P)
                
 #モデルを保存
-torch.save(Model1P.state_dict(),"Model/Model1P")
-torch.save(Model2P.state_dict(),"Model/Model2P")
+torch.save(Model1P.state_dict(),"Model_Throough/Model1P")
+torch.save(Model2P.state_dict(),"Model_Throough/Model2P")
 #環境のシャットダウン(プログラム終了)
 env.close()

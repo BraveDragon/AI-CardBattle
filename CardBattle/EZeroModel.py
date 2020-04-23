@@ -10,5 +10,6 @@ Model = nn.Sequential(
                     nn.LeakyReLU(),
                     nn.Linear(in_features=64,out_features=64),
                     nn.LeakyReLU(),
+                    nn.Dropout(0.5),
                     nn.Linear(in_features=64,out_features=Outputs)
                     )
