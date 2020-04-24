@@ -174,6 +174,9 @@ for episode in range(episodes+1):
             #ゲームが外部から切られたら保存して終了する
             torch.save(Model1P.state_dict(),"Model_EZero/Model1P")
             torch.save(Model2P.state_dict(),"Model_EZero/Model2P")
+            #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
+            torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.nn")
+            torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.nn")
             exit()
 
         #各エージェントごとのBatchedStepResultを取得
@@ -267,5 +270,8 @@ for episode in range(episodes+1):
 #モデルを保存
 torch.save(Model1P.state_dict(),"Model_EZero/Model1P")
 torch.save(Model2P.state_dict(),"Model_EZero/Model2P")
+#モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
+torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.nn")
+torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.nn")
 #環境のシャットダウン(プログラム終了)
 env.close()

@@ -12,10 +12,10 @@ public class PlayAgent : Agent
     List<CardText> AgentsHands = new List<CardText>();
     public bool is1P;
     public static bool is1P_tmp;
-    private short Player_HP_prev; //前のターンのプレイヤーのHP
-    private short Enemy_HP_prev; //前のターンの敵のHP
-    private short current_player_hp; //現在のプレイヤーのHP
-    private short current_enemy_hp; //現在の敵のHP
+    //private short Player_HP_prev; //前のターンのプレイヤーのHP
+    //private short Enemy_HP_prev; //前のターンの敵のHP
+    //private short current_player_hp; //現在のプレイヤーのHP
+    //private short current_enemy_hp; //現在の敵のHP
 
     readonly string[] names = System.Enum.GetNames(typeof(GameManager.Steps));
     //SideChannel sideChannel;
@@ -36,8 +36,8 @@ public class PlayAgent : Agent
     public override void OnEpisodeBegin()
     {
         GameManager.step = GameManager.Steps.Standby;
-        Player_HP_prev = Player.StartHP;
-        Enemy_HP_prev = Player.StartHP;
+        //Player_HP_prev = Player.StartHP;
+        //Enemy_HP_prev = Player.StartHP;
     }
 
     
@@ -95,32 +95,32 @@ public class PlayAgent : Agent
 
     public override void OnActionReceived(float[] vectorAction) {
         
-        if (GameManager.step == GameManager.Steps.StartStep) {
-            AddReward(-0.0001f); //ターンが長引くほどペナルティ
+        //if (GameManager.step == GameManager.Steps.StartStep) {
+        //    AddReward(-0.0001f); //ターンが長引くほどペナルティ
             
-            if (is1P == true) {
-                current_player_hp = GameManager.player1.HP;
-                current_enemy_hp = GameManager.player2.HP;
+            //if (is1P == true) {
+            //    current_player_hp = GameManager.player1.HP;
+            //    current_enemy_hp = GameManager.player2.HP;
                 
-            }
-            if(is1P == false) {
-                current_player_hp = GameManager.player2.HP;
-                current_enemy_hp = GameManager.player1.HP;
-            }
-            if(current_player_hp < Player_HP_prev){
-                //AddReward(-0.3f);
-            }
-            if(current_player_hp >= Player_HP_prev){
-                //AddReward(0.4f);
-            }
-            if(current_enemy_hp < Enemy_HP_prev){
-                //AddReward(-0.2f);
-            }
-            if (current_enemy_hp > Enemy_HP_prev)
-            {
-                //AddReward(0.3f);
-            }
-        }
+            //}
+            //if(is1P == false) {
+            //    current_player_hp = GameManager.player2.HP;
+            //    current_enemy_hp = GameManager.player1.HP;
+            //}
+            //if(current_player_hp < Player_HP_prev){
+            //    //AddReward(-0.3f);
+            //}
+            //if(current_player_hp >= Player_HP_prev){
+            //    //AddReward(0.4f);
+            //}
+            //if(current_enemy_hp < Enemy_HP_prev){
+            //    //AddReward(-0.2f);
+            //}
+            //if (current_enemy_hp > Enemy_HP_prev)
+            //{
+            //    //AddReward(0.3f);
+            //}
+        //}
 
         if(GameManager.step == GameManager.Steps.KeyWait) {
             //vectorActionの最大値を求める関係で要素数が2以上の時のみ処理
