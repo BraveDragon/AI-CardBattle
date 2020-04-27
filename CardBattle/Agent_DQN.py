@@ -178,8 +178,8 @@ for episode in range(episodes+1):
             torch.save(Model1P.state_dict(),"Model/Model1P")
             torch.save(Model2P.state_dict(),"Model/Model2P")
             #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-            torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.nn")
-            torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model/Model2P.nn")
+            torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.onnx")
+            torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model/Model2P.onnx")
             exit()
 
         #各エージェントごとのBatchedStepResultを取得
@@ -274,7 +274,7 @@ for episode in range(episodes+1):
 torch.save(Model1P.state_dict(),"Model/Model1P")
 torch.save(Model2P.state_dict(),"Model/Model2P")
 #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.nn")
-torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model/Model2P.nn")
+torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.onnx")
+torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model/Model2P.onnx")
 #環境のシャットダウン(プログラム終了)
 env.close()

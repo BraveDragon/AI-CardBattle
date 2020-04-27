@@ -308,11 +308,13 @@ public class GameManager : MonoBehaviour {
     
     void Result() {
         //人間がプレイする時は以下のコメントアウトを外す
-        //if (Input.GetKeyDown(KeyCode.Space) == true) {
-        //    step = Steps.Standby;
-        //}
-        step = Steps.Standby;
-        
+        if (Input.GetKeyDown(KeyCode.Space) == true)
+        {
+            step = Steps.Standby;
+        }
+        //人間がプレイする時は以下の文をコメントアウトする
+        //step = Steps.Standby;
+
     }
 
 
@@ -369,6 +371,19 @@ public class GameManager : MonoBehaviour {
 
 
 
+    }
+    //ステップをOne-hot形式で返す
+    public static int[] GetOnehotStep()
+    {
+        int[] ret = new int[7];
+        //一旦値を全て0で埋める
+        for(byte i = 0; i < ret.Length; i++)
+        {
+            ret[i] = 1;
+        }
+        ret[(int)step] = 1;
+
+        return ret;
     }
 }
 

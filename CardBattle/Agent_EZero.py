@@ -10,6 +10,8 @@ from collections import deque
 from collections import namedtuple
 import random
 import EZeroModel
+#ReplayMemoryのデータをUnityと共有するために使用
+import json
 #ELOレーティング用のライブラリ(MITライセンスなので多分大丈夫だがライセンスは要確認)
 from elote import EloCompetitor
 
@@ -93,13 +95,11 @@ for episode in range(episodes+1):
     else:
         Model1P_Target.load_state_dict(Model1P.state_dict())
         Model2P_Target.load_state_dict(Model2P.state_dict())
-    
+        pass
+
     for i in range(MaxSteps):
         CurrentStep += 1
         TotalStep += 1
-        # if epsiron > eps_end :
-        #     epsiron -= eps_reduce_rate
-
         #エージェントの状態を取得
         agent_group_specs = [env.get_agent_group_spec(agentgroup) for agentgroup in agent_groups]
         #各エージェントごとのBatchedStepResultを取得
@@ -175,8 +175,8 @@ for episode in range(episodes+1):
             torch.save(Model1P.state_dict(),"Model_EZero/Model1P")
             torch.save(Model2P.state_dict(),"Model_EZero/Model2P")
             #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-            torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.nn")
-            torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.nn")
+            torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.onnx")
+            torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.onnx")
             exit()
 
         #各エージェントごとのBatchedStepResultを取得
@@ -204,8 +204,30 @@ for episode in range(episodes+1):
             Experience2P.extend(action2P)
             Experience2P.extend(Reward2P)
             Experience2P.extend(NextState2P)
+            Experience1P_tmp = []
+            Experience2P_tmp = []
+            for Experience in Experience1P:
+                if type(Experience) is np.ndarray:
+                    Experience1P_tmp.extend(Experience.tolist())
+                else:
+                    Experience1P_tmp.append(float(Experience))
+            for Experience in Experience2P:
+                if type(Experience) is np.ndarray:
+                    Experience2P_tmp.extend(Experience.tolist())
+                else:
+                    Experience2P_tmp.append(float(Experience))
+            
+            Memory1P = {"Memory": Experience1P_tmp}
+            Memory2P = {"Memory": Experience2P_tmp}
+            with open("Model_EZero/Model1PMemory.json", "a") as f:
+                json.dump(Memory1P, f)
+
+            with open("Model_EZero/Model2PMemory.json", "a") as f:
+                json.dump(Memory2P, f)
             Memory_1P.load(Experience1P)
             Memory_2P.load(Experience2P)
+            Memory1P.clear()
+            Memory2P.clear()
             pass
         State1P = NextState1P
         State2P = NextState2P
@@ -264,6 +286,27 @@ for episode in range(episodes+1):
                 Experience2P.extend(action2P)
                 Experience2P.extend(Reward2P)
                 Experience2P.extend(NextState2P)
+                Experience1P_tmp = []
+                Experience2P_tmp = []
+                for Experience in Experience1P:
+                    if type(Experience) is np.ndarray:
+                        Experience1P_tmp.extend(Experience.tolist())
+                    else:
+                        Experience1P_tmp.append(str(Experience))
+                for Experience in Experience2P:
+                    if type(Experience) is np.ndarray:
+                        Experience2P_tmp.extend(Experience.tolist())
+                    else:
+                        Experience2P_tmp.append(float(Experience))
+                Memory1P = {"Memory": Experience1P_tmp}
+                Memory2P = {"Memory": Experience2P_tmp}
+                with open("Model_EZero/Model1PMemory.json", "a") as f:
+                    json.dump(Memory1P, f)
+                
+                with open("Model_EZero/Model2PMemory.json", "a") as f:
+                    json.dump(Memory2P, f)
+                Memory1P.clear()
+                Memory2P.clear()
                 Memory_1P.load(Experience1P)
                 Memory_2P.load(Experience2P)
                
@@ -271,7 +314,7 @@ for episode in range(episodes+1):
 torch.save(Model1P.state_dict(),"Model_EZero/Model1P")
 torch.save(Model2P.state_dict(),"Model_EZero/Model2P")
 #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.nn")
-torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.nn")
+torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.onnx")
+torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.onnx")
 #環境のシャットダウン(プログラム終了)
 env.close()

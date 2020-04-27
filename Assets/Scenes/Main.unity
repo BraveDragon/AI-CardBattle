@@ -1015,7 +1015,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &966153063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1048,6 +1048,8 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   maxStep: 0
   Field: {fileID: 825457029}
+  OnnxModel: {fileID: 5022602860645237092, guid: 38213606c3d0e9247b910da62da1d801,
+    type: 3}
   is1P: 1
 --- !u!114 &966153065
 MonoBehaviour:
@@ -1614,6 +1616,8 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   maxStep: 0
   Field: {fileID: 1155225582}
+  OnnxModel: {fileID: 5022602860645237092, guid: d9026051e84047f43b5b95a4ef99fb5c,
+    type: 3}
   is1P: 0
 --- !u!114 &1352369021
 MonoBehaviour:
