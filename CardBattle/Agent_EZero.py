@@ -11,7 +11,7 @@ from collections import namedtuple
 import random
 import EZeroModel
 #ReplayMemoryのデータをUnityと共有するために使用
-import json
+#import json
 #ELOレーティング用のライブラリ(MITライセンスなので多分大丈夫だがライセンスは要確認)
 from elote import EloCompetitor
 
@@ -204,30 +204,28 @@ for episode in range(episodes+1):
             Experience2P.extend(action2P)
             Experience2P.extend(Reward2P)
             Experience2P.extend(NextState2P)
-            Experience1P_tmp = []
-            Experience2P_tmp = []
-            for Experience in Experience1P:
-                if type(Experience) is np.ndarray:
-                    Experience1P_tmp.extend(Experience.tolist())
-                else:
-                    Experience1P_tmp.append(float(Experience))
-            for Experience in Experience2P:
-                if type(Experience) is np.ndarray:
-                    Experience2P_tmp.extend(Experience.tolist())
-                else:
-                    Experience2P_tmp.append(float(Experience))
+            # Experience1P_tmp = []
+            # Experience2P_tmp = []
+            # for Experience in Experience1P:
+            #     if type(Experience) is np.ndarray:
+            #         Experience1P_tmp.extend(Experience.tolist())
+            #     else:
+            #         Experience1P_tmp.append(float(Experience))
+            # for Experience in Experience2P:
+            #     if type(Experience) is np.ndarray:
+            #         Experience2P_tmp.extend(Experience.tolist())
+            #     else:
+            #         Experience2P_tmp.append(float(Experience))
             
-            Memory1P = {"Memory": Experience1P_tmp}
-            Memory2P = {"Memory": Experience2P_tmp}
-            with open("Model_EZero/Model1PMemory.json", "a") as f:
-                json.dump(Memory1P, f)
+            # Memory1P = {"Memory": Experience1P_tmp}
+            # Memory2P = {"Memory": Experience2P_tmp}
+            # with open("Model_EZero/Model1PMemory.json", "a") as f:
+            #     json.dump(Memory1P, f)
 
-            with open("Model_EZero/Model2PMemory.json", "a") as f:
-                json.dump(Memory2P, f)
+            # with open("Model_EZero/Model2PMemory.json", "a") as f:
+            #     json.dump(Memory2P, f)
             Memory_1P.load(Experience1P)
             Memory_2P.load(Experience2P)
-            Memory1P.clear()
-            Memory2P.clear()
             pass
         State1P = NextState1P
         State2P = NextState2P
@@ -286,27 +284,27 @@ for episode in range(episodes+1):
                 Experience2P.extend(action2P)
                 Experience2P.extend(Reward2P)
                 Experience2P.extend(NextState2P)
-                Experience1P_tmp = []
-                Experience2P_tmp = []
-                for Experience in Experience1P:
-                    if type(Experience) is np.ndarray:
-                        Experience1P_tmp.extend(Experience.tolist())
-                    else:
-                        Experience1P_tmp.append(str(Experience))
-                for Experience in Experience2P:
-                    if type(Experience) is np.ndarray:
-                        Experience2P_tmp.extend(Experience.tolist())
-                    else:
-                        Experience2P_tmp.append(float(Experience))
-                Memory1P = {"Memory": Experience1P_tmp}
-                Memory2P = {"Memory": Experience2P_tmp}
-                with open("Model_EZero/Model1PMemory.json", "a") as f:
-                    json.dump(Memory1P, f)
+                # Experience1P_tmp = []
+                # Experience2P_tmp = []
+                # for Experience in Experience1P:
+                #     if type(Experience) is np.ndarray:
+                #         Experience1P_tmp.extend(Experience.tolist())
+                #     else:
+                #         Experience1P_tmp.append(float(Experience))
+                # for Experience in Experience2P:
+                #     if type(Experience) is np.ndarray:
+                #         Experience2P_tmp.extend(Experience.tolist())
+                #     else:
+                #         Experience2P_tmp.append(float(Experience))
+                # Memory1P = {"Memory": Experience1P_tmp}
+                # Memory2P = {"Memory": Experience2P_tmp}
+                # with open("Model_EZero/Model1PMemory.json", "a") as f:
+                #     json.dump(Memory1P, f)
                 
-                with open("Model_EZero/Model2PMemory.json", "a") as f:
-                    json.dump(Memory2P, f)
-                Memory1P.clear()
-                Memory2P.clear()
+                # with open("Model_EZero/Model2PMemory.json", "a") as f:
+                #     json.dump(Memory2P, f)
+                # Memory1P.clear()
+                # Memory2P.clear()
                 Memory_1P.load(Experience1P)
                 Memory_2P.load(Experience2P)
                

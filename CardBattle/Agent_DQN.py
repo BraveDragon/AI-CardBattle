@@ -91,8 +91,6 @@ for episode in range(episodes+1):
         loss2P.backward(retain_graph=True)
         optimizer.step()
     else:
-        # target1P = Model1P(observations_from_step_results[0])
-        # target2P = Model2P(observations_from_step_results[1])
         Model1P_Target.load_state_dict(Model1P.state_dict())
         Model2P_Target.load_state_dict(Model2P.state_dict())
     
@@ -165,8 +163,7 @@ for episode in range(episodes+1):
 
             action1P = ret_action1P.detach().clone().numpy()
             action2P = ret_action2P.detach().clone().numpy()
-            #action1P = action1P[0]
-            #action2P = action2P[0]
+            
         #エージェントごとに行動を指定
         env.set_action_for_agent(agent_groups[0],agent_ids[0],np.array(action1P))
         env.set_action_for_agent(agent_groups[1],agent_ids[1],np.array(action2P))

@@ -6,6 +6,7 @@ using MLAgents.Sensors;
 using Barracuda;
 using System.Linq;
 
+
 public class PlayAgent : Agent
 {
     [SerializeField] private GameObject Field;
@@ -13,8 +14,8 @@ public class PlayAgent : Agent
     public NNModel OnnxModel;
     private Model model;
     private IWorker worker;
-    private Tensor Input_Tensor;
     List<CardText> AgentsHands = new List<CardText>();
+    List<int> inputs = new List<int>();
     public bool is1P;
     public static bool is1P_tmp;
     //private short Player_HP_prev; //前のターンのプレイヤーのHP
@@ -30,15 +31,15 @@ public class PlayAgent : Agent
         is1P_tmp = is1P;
         model = ModelLoader.Load(OnnxModel);
         worker = WorkerFactory.CreateWorker(WorkerFactory.Type.ComputePrecompiled, model);
-        
         //sideChannel = new CardGameSideChannel();
         //Academy.Instance.RegisterSideChannel(sideChannel);
+        
     }
 
     private void Update()
     {
         //TODO: ReplayMemoryの実装
-        List<int> inputs = new List<int>();
+        
         inputs.Add(GameManager.turn);
         inputs.AddRange(GameManager.GetOnehotStep());
         if (GameManager.player1 != null)
@@ -90,13 +91,16 @@ public class PlayAgent : Agent
                 }
             }
 
+            
+
         }
         catch (System.NullReferenceException ex)
         {
             //ヌルリの原因・解決方法が分からないのでとりあえず握りつぶす
         }
-        Input_Tensor = new Tensor(inputs.ToArray());
-        worker.Execute(Input_Tensor);
+        Tensor tensor = new Tensor(inputs.ToArray());
+        worker.Execute(tensor);
+        
 
     }
 
@@ -285,39 +289,48 @@ public class PlayAgent : Agent
     {
         List<float> action = new List<float>();
         List<CardText> objects = new List<CardText>();
-        if (GameManager.step == GameManager.Steps.KeyWait)
-        {
-            if(OnnxModel.Equals(null) == false) {
-               
-                Tensor output = worker.PeekOutput();
-                float[] ret_action = output.AsFloats();
-                float max = ret_action.Max();
-                byte maxindex = 0;
-                for(byte i = 0; i < ret_action.Length; i++){
-                    if(ret_action[i] == max){
-                        maxindex = i;
-                        break;
-                    }
-                }
+        if(OnnxModel != null) {
+            if (GameManager.step == GameManager.Steps.KeyWait)
+            {
 
+                Tensor o = worker.PeekOutput();
+                inputs.Clear();
+
+
+                List<float> outputlist = new List<float>();
+                for(byte i=0; i<o.channels; i++){
+                    outputlist.Add(o[0, 0, 0, i]);
+                }
+                o.Dispose();
+                
+                byte index = 0;
+                //TODO:SoftMax関数の実装
+                //TODO:dropoutが反映されていないようなのでdropoutを反映する
+                //TODO:Softmaxの出力を行動に反映
+                index = (byte)Mathf.RoundToInt(outputlist.Average());
+                outputlist.Clear();
                 objects.AddRange(Field.GetComponentsInChildren<CardText>());
                 AgentsHands.AddRange(objects);
-                if(AgentsHands.Count < maxindex) {
-                    maxindex = 0;
+                if (AgentsHands.Count < index)
+                {
+                    index = 0;
                 }
-                if (is1P == true){
-                    GameManager.SelectedCard = AgentsHands[maxindex].card_showing;
-                    GameManager.SelectedCard_Object = AgentsHands[maxindex].gameObject;
+                Debug.Log(index);
+                if (is1P == true)
+                {
+                    GameManager.SelectedCard = AgentsHands[index].card_showing;
+                    GameManager.SelectedCard_Object = AgentsHands[index].gameObject;
                 }
                 if (is1P == false)
                 {
-                    GameManager.SelectedCard_2P = AgentsHands[maxindex].card_showing;
-                    GameManager.SelectedCard_2P_Object = AgentsHands[maxindex].gameObject;
+                    GameManager.SelectedCard_2P = AgentsHands[index].card_showing;
+                    GameManager.SelectedCard_2P_Object = AgentsHands[index].gameObject;
                 }
                 AgentsHands.Clear();
-                return ret_action;
-
             }
+                
+
+            
             //仮組みでランダムに選ぶだけのAI
             //objects.AddRange(Field.GetComponentsInChildren<CardText>());
            
@@ -338,15 +351,10 @@ public class PlayAgent : Agent
             
 
         }
-        return action.ToArray();
+        return new float[0];
     }
 
-    ~PlayAgent(){
-
-        worker.Dispose();
-    }
-
-
+    
    
 }
 
