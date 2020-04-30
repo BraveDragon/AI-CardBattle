@@ -42,6 +42,8 @@ Agent1P = EloCompetitor()
 Agent2P = EloCompetitor()
 #ゲーム回数のカウント((GameCount_ResultView) 回ごとに結果を出力)
 GameCount = 0
+#累計ゲーム回数のカウント
+TotalGameCount = 0
 #何回目のゲームごとに結果を出力するか
 GameCount_ResultView = 10
 #更新を計算するためのモデル
@@ -119,12 +121,19 @@ for episode in range(episodes+1):
         State2P = observations_from_step_results[1]
         State1P_tmp = State1P[0]
         State2P_tmp = State2P[0]
+        if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0 or State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
+            TotalGameCount += 1
         if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0:
              Agent2P.beat(Agent1P)
              GameCount += 1
         if State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
              Agent1P.beat(Agent2P)
              GameCount += 1
+        #レーティングを書き出し
+        with open("Model\DQNModel1PRating.csv", "a") as f:
+            f.write(str(TotalGameCount)+","+str(Agent1P.rating)+"\n")
+        with open("Model\DQNModel2PRating.csv", "a") as f:
+            f.write(str(TotalGameCount)+","+str(Agent2P.rating)+"\n")
         #レーティングを表示
         if GameCount > GameCount_ResultView:
              print("Rating : " + str(Agent1P.rating) + " | " + str(Agent2P.rating) )

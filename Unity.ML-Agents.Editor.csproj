@@ -73,19 +73,19 @@
     <Compile Include="C:\ml-agents\com.unity.ml-agents\Editor\RenderTextureSensorComponentEditor.cs" />
     <None Include="C:\ml-agents\com.unity.ml-agents\Editor\Unity.ML-Agents.Editor.asmdef" />
     <Reference Include="Barracuda">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Barracuda.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Barracuda.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.TestRunner">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TestRunner">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.3f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -295,10 +295,10 @@
       <HintPath>C:/Program Files (x86)/Microsoft Visual Studio Tools for Unity/15.0/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>F:/CardBattle/Library/PackageCache/com.unity.barracuda@0.6.1-preview/Barracuda/Plugins/ProtoBuffer/Google.Protobuf.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/PackageCache/com.unity.barracuda@0.6.1-preview/Barracuda/Plugins/ProtoBuffer/Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Unsafe">
-      <HintPath>F:/CardBattle/Library/PackageCache/com.unity.burst@1.1.1/Unity.Burst.Unsafe.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/PackageCache/com.unity.burst@1.1.1/Unity.Burst.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Abstractions">
       <HintPath>C:/ml-agents/com.unity.ml-agents/Plugins/System.IO.Abstractions.dll</HintPath>
@@ -313,7 +313,7 @@
       <HintPath>C:/ml-agents/com.unity.ml-agents/Plugins/ProtoBuffer/System.Interactive.Async.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>F:/CardBattle/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.3f1/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>

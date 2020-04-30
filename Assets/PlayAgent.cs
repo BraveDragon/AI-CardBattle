@@ -293,13 +293,14 @@ public class PlayAgent : Agent
             if (GameManager.step == GameManager.Steps.KeyWait)
             {
 
-                Tensor o = worker.PeekOutput();
+                Tensor o = worker.PeekOutput("17");
                 inputs.Clear();
 
 
                 List<float> outputlist = new List<float>();
                 for(byte i=0; i<o.channels; i++){
                     outputlist.Add(o[0, 0, 0, i]);
+                    Debug.Log(outputlist.Count);
                 }
                 o.Dispose();
                 
@@ -308,6 +309,7 @@ public class PlayAgent : Agent
                 //TODO:dropoutが反映されていないようなのでdropoutを反映する
                 //TODO:Softmaxの出力を行動に反映
                 index = (byte)Mathf.RoundToInt(outputlist.Average());
+                
                 outputlist.Clear();
                 objects.AddRange(Field.GetComponentsInChildren<CardText>());
                 AgentsHands.AddRange(objects);
@@ -315,7 +317,7 @@ public class PlayAgent : Agent
                 {
                     index = 0;
                 }
-                Debug.Log(index);
+                //Debug.Log(index);
                 if (is1P == true)
                 {
                     GameManager.SelectedCard = AgentsHands[index].card_showing;

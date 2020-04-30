@@ -71,58 +71,58 @@
     <Compile Include="Assets\PlayAgent.cs" />
     <Compile Include="Assets\Player.cs" />
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="MacBLAS">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/MacBLAS.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/MacBLAS.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.Burst.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.Burst.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Barracuda-editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Barracuda-editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Barracuda-editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.Burst.Editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.Burst.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Barracuda">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Barracuda.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Barracuda.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="iOSBLAS">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/iOSBLAS.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/iOSBLAS.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="BurstBLAS">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/BurstBLAS.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/BurstBLAS.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Mathematics">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.Mathematics.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Mathematics.Editor">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.Mathematics.Editor.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.Mathematics.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>F:/CardBattle/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.3f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -302,10 +302,10 @@
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.3.3f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>F:/CardBattle/Library/PackageCache/com.unity.barracuda@0.6.1-preview/Barracuda/Plugins/ProtoBuffer/Google.Protobuf.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/PackageCache/com.unity.barracuda@0.6.1-preview/Barracuda/Plugins/ProtoBuffer/Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Unsafe">
-      <HintPath>F:/CardBattle/Library/PackageCache/com.unity.burst@1.1.1/Unity.Burst.Unsafe.dll</HintPath>
+      <HintPath>C:/CardBattle/Library/PackageCache/com.unity.burst@1.1.1/Unity.Burst.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Abstractions">
       <HintPath>C:/ml-agents/com.unity.ml-agents/Plugins/System.IO.Abstractions.dll</HintPath>
