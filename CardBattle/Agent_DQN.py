@@ -32,7 +32,6 @@ class ReplayMemory(object):
     def length(self):
         return len(self.memory)
 
-#TODO:Unity側から呼び出しても問題ないようにモデル形式を変換
 #更新対象となるネットワーク
 Devise = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 Model1P = DQNModel.Model.to(Devise)
@@ -45,7 +44,10 @@ GameCount = 0
 #累計ゲーム回数のカウント
 TotalGameCount = 0
 #何回目のゲームごとに結果を出力するか
-GameCount_ResultView = 10
+GameCount_ResultView = 100
+#1P,2Pそれぞれの勝利回数
+Winning_1P = 0
+Winning_2P = 0
 #更新を計算するためのモデル
 Model1P_Target = DQNModel.Model.to(Devise)
 Model2P_Target = DQNModel.Model.to(Devise)
@@ -123,21 +125,27 @@ for episode in range(episodes+1):
         State2P_tmp = State2P[0]
         if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0 or State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
             TotalGameCount += 1
+        #2Pの勝利
         if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0:
              Agent2P.beat(Agent1P)
              GameCount += 1
+             Winning_2P += 1
+        #1Pの勝利
         if State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
              Agent1P.beat(Agent2P)
              GameCount += 1
+             Winning_1P += 1
         #レーティングを書き出し
         with open("Model\DQNModel1PRating.csv", "a") as f:
             f.write(str(TotalGameCount)+","+str(Agent1P.rating)+"\n")
         with open("Model\DQNModel2PRating.csv", "a") as f:
             f.write(str(TotalGameCount)+","+str(Agent2P.rating)+"\n")
-        #レーティングを表示
+        #レーティングを表示(表示したらGameCount,Winning_1P,Winning_2Pをリセット)
         if GameCount > GameCount_ResultView:
-             print("Rating : " + str(Agent1P.rating) + " | " + str(Agent2P.rating) )
+             print("Rating : " + str(Agent1P.rating) +" "+str(Winning_1P / GameCount_ResultView) + " | " + str(Agent2P.rating)+" "+str(Winning_2P / GameCount_ResultView))
              GameCount = 0
+             Winning_1P = 0
+             Winning_2P = 0
         if epsiron > np.random.rand():
             action1P = np.random.randn(5)
             action2P = np.random.randn(5)
