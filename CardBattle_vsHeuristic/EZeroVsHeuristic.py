@@ -43,12 +43,13 @@ GameCount = 0
 TotalGameCount = 0
 #何回目のゲームごとに結果を出力するか
 GameCount_ResultView = 100
+#結果出力の累計回数
+ViewCount = 0
 #1P,2Pそれぞれの勝利回数
 Winning_1P = 0
 Winning_2P = 0
 #更新を計算するためのモデル
 Model1P_Target = EZeroModel.Model.to(Devise)
-#Model2P_Target = EZeroModel.Model.to(Devise)
 #ここからが実際の学習のコード
 optimizer = optim.Adam(EZeroModel.Model.parameters(),lr=0.001,weight_decay=0.005)
 MaxSteps = 500
@@ -123,10 +124,15 @@ for episode in range(episodes+1):
             f.write(str(TotalGameCount)+","+str(Agent2P.rating)+"\n")
         #レーティングを表示(表示したらGameCount,Winning_1P,Winning_2Pをリセット)
         if GameCount > GameCount_ResultView:
-             print("Rating : " + str(Agent1P.rating)+" "+str(Winning_1P / GameCount_ResultView)+ " | " + str(Agent2P.rating) +" "+str(Winning_2P / GameCount_ResultView))
-             GameCount = 0
-             Winning_1P = 0
-             Winning_2P = 0
+            ViewCount += 1
+            print("Rating : " + str(Agent1P.rating)+" "+str(Winning_1P / GameCount_ResultView)+ " | " + str(Agent2P.rating) +" "+str(Winning_2P / GameCount_ResultView))
+            with open("Model_EZero/EZeroWinRate.csv","a") as f:
+                f.write(str(ViewCount)+","+str(Winning_1P / GameCount_ResultView)+"\n")
+            with open("Model_EZero/EZeroWinRate_2P.csv","a") as f:
+                f.write(str(ViewCount)+","+str(Winning_2P / GameCount_ResultView)+"\n")
+            GameCount = 0
+            Winning_1P = 0
+            Winning_2P = 0
 
         action1P = np.random.randn(5)
         Load_Inputs1P = []
