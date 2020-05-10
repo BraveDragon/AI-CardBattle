@@ -18,25 +18,22 @@ public class CardText : MonoBehaviour
     {
         if (is1P == true)
         {
-            ReturnCard(true);
-            
+            GameManager.SetAction(this,is1P);
+
 
         }
     }
 
     //カードを出力
-    public void ReturnCard(bool is1P){
-        if (is1P == true) {
-            GameManager.SelectedCard = card_showing;
-            GameManager.SelectedCard_Object = this.gameObject;
-        }
+    //public void ReturnCard(bool is1P){
+    //    if (is1P == true) {
+    //        GameManager.SelectedCard = card_showing;
+    //        GameManager.SelectedCard_Object = this.gameObject;
+    //    }
+    //    if(is1P == false) {
+    //        GameManager.SelectedCard_2P = card_showing;
+    //        GameManager.SelectedCard_2P_Object = this.gameObject;
 
-        if(is1P == false) {
-            GameManager.SelectedCard_2P = card_showing;
-            GameManager.SelectedCard_2P_Object = this.gameObject;
-
-        }
-
-
-    }
+    //    }
+    //}
 }

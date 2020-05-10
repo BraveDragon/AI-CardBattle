@@ -14,10 +14,18 @@ public class PlayAgent : Agent
     public NNModel OnnxModel;
     private Model model;
     private IWorker worker;
-    List<CardText> AgentsHands = new List<CardText>();
     List<int> inputs = new List<int>();
     public bool is1P;
     public static bool is1P_tmp;
+    private byte m = 0; //モード
+    //以下：各モードの説明
+    // 0:自分と相手の体力を比較。
+    // 1:優勢時。自分の体力が相手より多い。
+    // 2:劣勢時。自分の体力が相手より少ない。
+    //HPで有利な時に優先して使用するカード。添え字が小さいほど優先度高。
+    private readonly string[] PickCards_Lead = {"ATK+200", "DEF-10", "NewDeal", "Random", "Gamble" };
+    //HPで不利な時に優先して使用するカード。添え字が小さいほど優先度高。
+    private readonly string[] PickCards_Behind = {"ATK-100", "DEF+20", "NewDeal", "Random" };
     //private short Player_HP_prev; //前のターンのプレイヤーのHP
     //private short Enemy_HP_prev; //前のターンの敵のHP
     //private short current_player_hp; //現在のプレイヤーのHP
@@ -29,8 +37,10 @@ public class PlayAgent : Agent
     private void Awake()
     {
         is1P_tmp = is1P;
-        model = ModelLoader.Load(OnnxModel);
-        worker = WorkerFactory.CreateWorker(WorkerFactory.Type.ComputePrecompiled, model);
+        if (OnnxModel != null) {
+            model = ModelLoader.Load(OnnxModel);
+            worker = WorkerFactory.CreateWorker(WorkerFactory.Type.ComputePrecompiled, model);
+        }
         //sideChannel = new CardGameSideChannel();
         //Academy.Instance.RegisterSideChannel(sideChannel);
         
@@ -98,8 +108,10 @@ public class PlayAgent : Agent
         {
             //ヌルリの原因・解決方法が分からないのでとりあえず握りつぶす
         }
-        Tensor tensor = new Tensor(inputs.ToArray());
-        worker.Execute(tensor);
+        if (OnnxModel != null) {
+            Tensor tensor = new Tensor(inputs.ToArray());
+            worker.Execute(tensor);
+        }
         
 
     }
@@ -232,8 +244,7 @@ public class PlayAgent : Agent
                 if (is1P == true) { //手札に触れる関係上添え字が要素数を超えないようにする
 
                     if (select < hands.Count()) {
-                        GameManager.SelectedCard = hands[select].card_showing;
-                        GameManager.SelectedCard_Object = hands[select].gameObject;
+                        GameManager.SetAction(hands[select],is1P);
                     }
                     //勝利時の処理
                     if (GameManager.player2.HP <= 0)
@@ -257,8 +268,7 @@ public class PlayAgent : Agent
                     //手札に触れる関係上添え字が要素数を超えないようにする
                     if (select < hands.Count())
                     {
-                        GameManager.SelectedCard_2P = hands[select].card_showing;
-                        GameManager.SelectedCard_2P_Object = hands[select].gameObject;
+                        GameManager.SetAction(hands[select], is1P);
                     }
 
                     //勝利時の処理
@@ -283,82 +293,196 @@ public class PlayAgent : Agent
 
 
     }
+    
+    //優勢時に最優先で使うべきカードを返す
+    private string[] GetBestCard_Lead(){
+        if(GameManager.player1.ATK >= GameManager.player2.ATK) {
+            string[] ret = { "Attack", "Counter" };
+            return ret;
+        }
+        else {
+            string[] ret = { "Counter", "Attack" };
+            return ret;
+        }
+    }
 
+    //劣勢時に最優先で使うべきカードを返す
+    private string[] GetBestCard_Behind() {
+        if(GameManager.Is1PFirst == true) {
+            string[] ret = {"Heal", "Guard" };
+            return ret;
+        } else {
+            string[] ret = {"Heal"};
+            return ret;
+        }
+    }
     
     public override float[] Heuristic()
     {
-        List<float> action = new List<float>();
-        List<CardText> objects = new List<CardText>();
-        if(OnnxModel != null) {
-            if (GameManager.step == GameManager.Steps.KeyWait)
-            {
-
-                Tensor o = worker.PeekOutput("17");
+        if (GameManager.step == GameManager.Steps.KeyWait) {
+            //共通して使用する変数類を定義+初期化
+            //自分の手札を取得
+            List<CardText> Hands = new List<CardText>(Field.GetComponentsInChildren<CardText>());
+            CardText selectedcard = new CardText();
+            
+            //学習済みモデルがある時
+            if (OnnxModel != null) {
+                Tensor o = worker.PeekOutput();
                 inputs.Clear();
-
-
+                byte index;
                 List<float> outputlist = new List<float>();
-                for(byte i=0; i<o.channels; i++){
+                for (byte i = 0; i < o.channels; i++) {
                     outputlist.Add(o[0, 0, 0, i]);
-                    Debug.Log(outputlist.Count);
+                    //Debug.Log(outputlist.Count);
                 }
                 o.Dispose();
+
                 
-                byte index = 0;
-                //TODO:SoftMax関数の実装
-                //TODO:dropoutが反映されていないようなのでdropoutを反映する
-                //TODO:Softmaxの出力を行動に反映
+                //TODO:行動を返り値に反映させる
                 index = (byte)Mathf.RoundToInt(outputlist.Average());
-                
+
                 outputlist.Clear();
-                objects.AddRange(Field.GetComponentsInChildren<CardText>());
-                AgentsHands.AddRange(objects);
-                if (AgentsHands.Count < index)
-                {
+                if (Hands.Count < index) {
                     index = 0;
                 }
                 //Debug.Log(index);
-                if (is1P == true)
-                {
-                    GameManager.SelectedCard = AgentsHands[index].card_showing;
-                    GameManager.SelectedCard_Object = AgentsHands[index].gameObject;
-                }
-                if (is1P == false)
-                {
-                    GameManager.SelectedCard_2P = AgentsHands[index].card_showing;
-                    GameManager.SelectedCard_2P_Object = AgentsHands[index].gameObject;
-                }
-                AgentsHands.Clear();
-            }
+              
+                //GameManager.SetAction(Hands[index].card_showing, Hands[index].gameObject,is1P);
+                    
+                
+                //if (is1P == false) {
+                //    GameManager.SelectedCard_2P = AgentsHands[index].card_showing;
+                //    GameManager.SelectedCard_2P_Object = AgentsHands[index].gameObject;
+                //}
                 
 
-            
-            //仮組みでランダムに選ぶだけのAI
-            //objects.AddRange(Field.GetComponentsInChildren<CardText>());
-           
-            //AgentsHands.AddRange(objects);
-            //action.AddRange(Enumerable.Repeat(0.0f, AgentsHands.Count));
+                return outputlist.ToArray();
 
-            //byte actionindex = 0;
-            //actionindex = (byte)Random.Range(0, AgentsHands.Count);
-            //for (byte i = 0; i < action.Count; i++)
-            //    {
-            //        action[i] = 0.0f;
-            //    }
-            //action[actionindex] = 1.0f;
 
-            //AgentsHands[actionindex].ReturnCard(false);
+            }
+            //ルールベースの戦略を使用して戦うAI
+            //自分のHPと相手のHPを確認
+            if (m == 0) {
+                if (is1P == true) {
+                    if (GameManager.player1.HP >= GameManager.player2.HP) {
+                        m = 1;
+                    } else {
+                        m = 2;
+                    }
+                }
+                if (is1P == false) {
+                    if (GameManager.player2.HP >= GameManager.player1.HP) {
+                        m = 1;
+                    } else {
+                        m = 2;
+                    }
+                }
 
-            //AgentsHands.Clear();
-            
+            }
+            //優勢時の処理
+            if(m == 1) {
+                string[] bestcards = GetBestCard_Lead();
+                List<CardText> cardTexts = new List<CardText>();
+                for (byte i = 0; i < bestcards.Length; i++){
+                    cardTexts.AddRange(Hands.Where(hand => hand.card_showing.CardName == bestcards[i]));
+                     if(cardTexts.Count > 0){
+                        selectedcard = cardTexts[0];
+                        break;
+                    }
+                    }
+                //最善のカードが手札になかった時
+                if(cardTexts.Count == 0){
+                    for (byte i = 0; i < PickCards_Lead.Length; i++){
+                        cardTexts.AddRange(Hands.Where(hand => hand.card_showing.CardName == PickCards_Lead[i]));
+                        if (cardTexts.Count > 0) {
+                            selectedcard = cardTexts[0];
+                            break; //カードが見つかればここでループを抜ける
+                        }
+                    }
+                }
+                //2回カードを探しても手札になかった時は手札にあるカードからランダムに選ぶ
+                if (cardTexts.Count == 0){
+                    //byte actionindex = 0;
+                    byte index = (byte)Random.Range(0, Hands.Count);
+                    //float[] action = new float[Hands.Count];
+                    //for (byte i = 0; i < Hands.Count; i++){
+                    //    action[i] = 0.0f;
+                    //}
+                    //action[actionindex] = 1.0f;
+                    //GameManager.SetAction(Hands[index].card_showing, Hands[index].gameObject, is1P);
+                    //m = 0;
+                    //return action.ToArray();
+                    selectedcard = Hands[index];
+                }
 
+                }
+            if (m == 2) {
+                string[] bestcards = GetBestCard_Behind();
+                List<CardText> cardTexts = new List<CardText>();
+                for (byte i = 0; i < bestcards.Length; i++) {
+                    cardTexts.AddRange(Hands.Where(hand => hand.card_showing.CardName == bestcards[i]));
+                    if (cardTexts.Count > 0) {
+                        selectedcard = cardTexts[0];
+                        break; //カードが見つかればここでループを抜ける
+                    }  
+                }
+                //最善のカードが手札になかった時
+                if (cardTexts.Count == 0) {
+                    for (byte i = 0; i < PickCards_Behind.Length; i++) {
+                        cardTexts.AddRange(Hands.Where(hand => hand.card_showing.CardName == PickCards_Lead[i]));
+                        if (cardTexts.Count > 0) {
+                            selectedcard = cardTexts[0];
+                            break; //カードが見つかればここでループを抜ける
+                        }
+                    }
+                }
+                //2回カードを探しても手札になかった時は手札にあるカードからランダムに選ぶ
+                if (cardTexts.Count == 0) {
+                    //byte actionindex = 0;
+                    //float[] action = new float[AgentsHands.Count];
+                    byte index = (byte)Random.Range(0, Hands.Count);
+                    selectedcard = Hands[index];
+                    //for (byte i = 0; i < AgentsHands.Count; i++)
+                    //{
+                    //    action[i] = 0.0f;
+                    //}
+                    //action[actionindex] = 1.0f;
+                    
+                    //return action.ToArray();
+                }
+
+            }
+
+            GameManager.SetAction(selectedcard,is1P);
+            //Debug.Log(index);
+            m = 0;
+            Hands.Clear();
         }
+        //仮組みでランダムに選ぶだけのAI
+        //objects.AddRange(Field.GetComponentsInChildren<CardText>());
+
+        //AgentsHands.AddRange(objects);
+        //action.AddRange(Enumerable.Repeat(0.0f, AgentsHands.Count));
+
+        //byte actionindex = 0;
+        //actionindex = (byte)Random.Range(0, AgentsHands.Count);
+        //for (byte i = 0; i < action.Count; i++)
+        //    {
+        //        action[i] = 0.0f;
+        //    }
+        //action[actionindex] = 1.0f;
+
+        //
+
+        //AgentsHands.Clear();
         return new float[0];
+        }
+      
     }
 
     
    
-}
+
 
 //サイドチャネル
 //ここからデータを送る

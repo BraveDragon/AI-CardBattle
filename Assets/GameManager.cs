@@ -13,8 +13,8 @@ public class GameManager : MonoBehaviour {
     public static Player player1; //1P
     public static Player player2; //2P
     public Text ResultText; //決着時のテキスト
-    public GameObject Field_1P; // 表示するカードの親オブジェクト(1P)
-    public GameObject Field_2P; // 表示するカードの親オブジェクト(2P)
+    [SerializeField] private GameObject Field_1P; // 表示するカードの親オブジェクト(1P)
+    [SerializeField] private GameObject Field_2P; // 表示するカードの親オブジェクト(2P)
     public static GameObject Field_1P_tmp;
     public static GameObject Field_2P_tmp;
     public GameObject ViewCards; //表示するカードのプレハブ
@@ -23,10 +23,10 @@ public class GameManager : MonoBehaviour {
     
     public static bool Is1PFirst = true; //1Pが先攻か
     
-    public static Card SelectedCard; //1Pが選択したカード(初期値はnull)
-    public static GameObject SelectedCard_Object; //1Pが選択したカードのオブジェクト
-    public static Card SelectedCard_2P; //2Pが選択したカード(初期値はnull)
-    public static GameObject SelectedCard_2P_Object; //2Pが選択したカードのオブジェクト
+    public static Card SelectedCard { get; private set; } //1Pが選択したカード(初期値はnull)
+    private static GameObject SelectedCard_Object; //1Pが選択したカードのオブジェクト
+    public static Card SelectedCard_2P { get; private set; } //2Pが選択したカード(初期値はnull)
+    private static GameObject SelectedCard_2P_Object; //2Pが選択したカードのオブジェクト
 
 
     public enum Steps : byte{
@@ -54,13 +54,10 @@ public class GameManager : MonoBehaviour {
         
     }
     // Start is called before the first frame update
-    void Start()
-    {
-
-        
-
+    void Start(){
         step = Steps.Standby;
     }
+
     //実際の処理を書く
     void Algorithm() {
 
@@ -231,7 +228,9 @@ public class GameManager : MonoBehaviour {
             Main2P();//2Pの行動
             Main1P();//1Pの行動
         }
-
+  
+        SelectedCard = null;
+        SelectedCard_2P = null;
         step = Steps.Action;
 
     }
@@ -242,7 +241,7 @@ public class GameManager : MonoBehaviour {
             SelectedCard.Effect.Invoke(true); //効果を使用
             Debug.Log("1P：" + SelectedCard.CardName);
             player1.hands.Remove(SelectedCard);
-            SelectedCard = null;
+            
         }
 
 
@@ -253,7 +252,7 @@ public class GameManager : MonoBehaviour {
             SelectedCard_2P.Effect.Invoke(false);
             Debug.Log("2P：" + SelectedCard_2P.CardName);
             player2.hands.Remove(SelectedCard_2P);
-            SelectedCard_2P = null;
+            
 
         }
         
@@ -317,62 +316,59 @@ public class GameManager : MonoBehaviour {
 
     }
 
-
-
-
-
-    public static void ShowCard_1P()
-    {
-
-        GameObject ViewCard;
-        List<CardText> cardtexts1P = new List<CardText>();
-
-        Card[] player1_hand = player1.hands.ToArray();
-
-
-        for (byte i = 0; i < player1_hand.Length; i++)
-        {
-            cardtexts1P.AddRange(Field_1P_tmp.GetComponentsInChildren<CardText>());
-            if (player1.hands.Count <= player1_hand.Length)
-            {
-                ViewCard = Instantiate(ViewCards_tmp, Field_1P_tmp.transform, false);
-                ViewCard.GetComponent<CardText>().card_showing = player1_hand[i];
-                ViewCard.GetComponent<CardText>().text.text = player1_hand[i].CardName;
-                ViewCard.GetComponent<CardText>().is1P = true;
-            }
-
+    //選択したカードを受け取る
+    public static void SetAction(CardText selectedcard, bool is1P) {
+        if(is1P == true) {
+            SelectedCard = selectedcard.card_showing;
+            SelectedCard_Object = selectedcard.gameObject;
         }
-
-
-
-
-
+        if (is1P == false){
+            SelectedCard_2P = selectedcard.card_showing;
+            SelectedCard_2P_Object = selectedcard.gameObject;
+        }
 
     }
 
-    public static void ShowCard_2P()
-    {
-        GameObject ViewCard;
-        List<CardText> cardtexts2P = new List<CardText>();
-        Card[] player2_hand = player2.hands.ToArray();
-
-        for (byte i = 0; i < player2_hand.Length; i++)
-        {
-            cardtexts2P.AddRange(Field_2P_tmp.GetComponentsInChildren<CardText>());
-            if (player2.hands.Count <= player2_hand.Length)
-            {
-                ViewCard = Instantiate(ViewCards_tmp, Field_2P_tmp.transform, false);
-                ViewCard.GetComponent<CardText>().card_showing = player2_hand[i];
-                ViewCard.GetComponent<CardText>().text.text = player2_hand[i].CardName;
-                ViewCard.GetComponent<CardText>().is1P = false;
-            }
-
-        }
 
 
+    //public static void ShowCard_1P() {
+    //    GameObject ViewCard;
+    //    List<CardText> cardtexts1P = new List<CardText>();
+    //    Card[] player1_hand = player1.hands.ToArray();
 
-    }
+    //    for (byte i = 0; i < player1_hand.Length; i++) {
+    //        cardtexts1P.AddRange(Field_1P_tmp.GetComponentsInChildren<CardText>());
+    //        if (player1.hands.Count <= player1_hand.Length) {
+    //            ViewCard = Instantiate(ViewCards_tmp, Field_1P_tmp.transform, false);
+    //            ViewCard.GetComponent<CardText>().card_showing = player1_hand[i];
+    //            ViewCard.GetComponent<CardText>().text.text = player1_hand[i].CardName;
+    //            ViewCard.GetComponent<CardText>().is1P = true;
+    //        }
+
+    //    }
+    //}
+
+    //public static void ShowCard_2P()
+    //{
+    //    GameObject ViewCard;
+    //    List<CardText> cardtexts2P = new List<CardText>();
+    //    Card[] player2_hand = player2.hands.ToArray();
+
+    //    for (byte i = 0; i < player2_hand.Length; i++)
+    //    {
+    //        cardtexts2P.AddRange(Field_2P_tmp.GetComponentsInChildren<CardText>());
+    //        if (player2.hands.Count <= player2_hand.Length)
+    //        {
+    //            ViewCard = Instantiate(ViewCards_tmp, Field_2P_tmp.transform, false);
+    //            ViewCard.GetComponent<CardText>().card_showing = player2_hand[i];
+    //            ViewCard.GetComponent<CardText>().text.text = player2_hand[i].CardName;
+    //            ViewCard.GetComponent<CardText>().is1P = false;
+    //        }
+
+    //    }
+    //}
     //ステップをOne-hot形式で返す
+
     public static int[] GetOnehotStep()
     {
         int[] ret = new int[7];

@@ -15,11 +15,11 @@ public class Effects : MonoBehaviour
     public void Attack(bool is1P) {
 
 
-        if (is1P == true && GameManager.player2.defendedflag == false) {
+        if (is1P == true && GameManager.SelectedCard_2P.CardName != "Guard") {
             GameManager.player2.HP -= (short)(GameManager.player1.ATK - GameManager.player2.DEF);
            
         }
-        if (is1P == false && GameManager.player1.defendedflag == false) {
+        if (is1P == false && GameManager.SelectedCard.CardName != "Guard") {
             GameManager.player1.HP -= (short)(GameManager.player2.ATK - GameManager.player1.DEF);
            
         }
@@ -77,13 +77,13 @@ public class Effects : MonoBehaviour
     }
 
     public void Counter(bool is1P){
-        if (is1P == true && GameManager.player2.defendedflag == false)
+        if (is1P == true && GameManager.SelectedCard_2P.CardName != "Guard")
         {
             //GameManager.player1.defendedflag = true;
             GameManager.player2.HP -= (short)(GameManager.player2.ATK - GameManager.player2.DEF);
 
         }
-        if(is1P == false && GameManager.player1.defendedflag == false)
+        if(is1P == false && GameManager.SelectedCard.CardName != "Guard")
         {
             //GameManager.player2.defendedflag = true;
             GameManager.player1.HP -= (short)(GameManager.player1.ATK - GameManager.player1.DEF);
@@ -191,7 +191,7 @@ public class Effects : MonoBehaviour
     public void Random(bool is1P){
         
         int card = 0;
-        card = UnityEngine.Random.Range(0,CardResources.AllCards.Count);
+        card = UnityEngine.Random.Range(0,CardResources.AllCards.Count-1);
         CardResources.AllCards[card].Effect.Invoke(is1P);
     }
 
