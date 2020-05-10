@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Linq;
 using MLAgents;
@@ -306,13 +307,16 @@ public class GameManager : MonoBehaviour {
 
     
     void Result() {
-        //人間がプレイする時は以下のコメントアウトを外す
-        if (Input.GetKeyDown(KeyCode.Space) == true)
-        {
+
+        if (SceneManager.GetActiveScene().name == "Main") {
+            if (Input.GetKeyDown(KeyCode.Space) == true) {
+                step = Steps.Standby;
+            }
+        } else {
             step = Steps.Standby;
         }
-        //人間がプレイする時は以下の文をコメントアウトする
-        //step = Steps.Standby;
+        
+        
 
     }
 

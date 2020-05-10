@@ -1048,8 +1048,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   maxStep: 0
   Field: {fileID: 825457029}
-  OnnxModel: {fileID: 5022602860645237092, guid: 8e8a8fe941859a64db720df461bf1a94,
-    type: 3}
+  OnnxModel: {fileID: 0}
   is1P: 1
 --- !u!114 &966153065
 MonoBehaviour:
@@ -1616,8 +1615,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   maxStep: 0
   Field: {fileID: 1155225582}
-  OnnxModel: {fileID: 5022602860645237092, guid: df5e31b3be1459848ab3b88ac0269c91,
-    type: 3}
+  OnnxModel: {fileID: 0}
   is1P: 0
 --- !u!114 &1352369021
 MonoBehaviour:
