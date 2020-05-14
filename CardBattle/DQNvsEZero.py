@@ -34,7 +34,6 @@ class ReplayMemory(object):
     def length(self):
         return len(self.memory)
 
-#TODO:Unity側から呼び出しても問題ないようにモデル形式を変換
 #更新対象となるネットワーク
 Devise = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 Model1P = DQNModel.Model.to(Devise)
@@ -67,10 +66,10 @@ JustLooking = 10
 Memory_1P = ReplayMemory(memory_size)
 Memory_2P = ReplayMemory(memory_size)
 #トレーニングするよう設定。推論時はFalseにする。
-Model1P.train(True)
-Model2P.train(True)
-Model1P_Target.train(True)
-Model2P_Target.train(True)
+Model1P.train(False)
+Model2P.train(False)
+Model1P_Target.train(False)
+Model2P_Target.train(False)
 criterion = nn.SmoothL1Loss()
 env = UnityEnvironment(file_name="CardBattle", base_port=5005,side_channels=[])
 env.reset()
@@ -95,8 +94,6 @@ for episode in range(episodes+1):
         optimizer1P.step()
         optimizer2P.step()
     else:
-        # target1P = Model1P(observations_from_step_results[0])
-        # target2P = Model2P(observations_from_step_results[1])
         Model1P_Target.load_state_dict(Model1P.state_dict())
         Model2P_Target.load_state_dict(Model2P.state_dict())
     
@@ -114,7 +111,6 @@ for episode in range(episodes+1):
         #各エージェントごとのStepResultを取得
         step_results = [batched_step_results[int(agent_id)].get_agent_step_result(int(agent_id)) for agent_id in agent_ids]
         #observation値を取得 (状態に相当)
-        #observations_from_batched_step_results = [batched_step_result.obs for batched_step_result in batched_step_results]
         observations_from_step_results = [step_result.obs for step_result in step_results]
         #報酬を取得
         #rewards_from_batched_step_results = [batched_step_result.reward for batched_step_result in batched_step_results]
@@ -169,8 +165,7 @@ for episode in range(episodes+1):
 
             action1P = ret_action1P.detach().clone().numpy()
             action2P = ret_action2P.detach().clone().numpy()
-            #action1P = action1P[0]
-            #action2P = action2P[0]
+            
         #エージェントごとに行動を指定
         env.set_action_for_agent(agent_groups[0],agent_ids[0],np.array(action1P))
         env.set_action_for_agent(agent_groups[1],agent_ids[1],np.array(action2P))
@@ -178,12 +173,6 @@ for episode in range(episodes+1):
         try:
             env.step()
         except:
-            #ゲームが外部から切られたら保存して終了する
-            torch.save(Model1P.state_dict(),"Model/Model1P_DQN")
-            torch.save(Model2P.state_dict(),"Model/Model2P_EZero")
-            #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-            torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.onnx")
-            torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.onnx")
             exit()
 
         #各エージェントごとのBatchedStepResultを取得
@@ -278,11 +267,5 @@ for episode in range(episodes+1):
                 Memory_1P.load(Experience1P)
                 Memory_2P.load(Experience2P)
                
-#モデルを保存
-torch.save(Model1P.state_dict(),"Model/Model1P_DQN")
-torch.save(Model2P.state_dict(),"Model/Model2P_EZero")
-#モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.onnx")
-torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model_EZero/Model2P.onnx")
 #環境のシャットダウン(プログラム終了)
 env.close()

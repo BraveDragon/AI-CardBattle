@@ -30,3 +30,6 @@ Artifacts
 /Unity.Burst.csproj
 /.vs
 CardBattle_vsHeuristic2P
+Library
+StateCache
+__pycache__
