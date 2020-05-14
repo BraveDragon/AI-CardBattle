@@ -106,6 +106,11 @@ for episode in range(episodes+1):
         State1P = observations_from_step_results[0]
         State1P_tmp = State1P[0]
         if State1P_tmp[2] <= 0 or State1P_tmp[6] <= 0:
+            #5000ゲームしたところで終了して保存(pytorch用のみ)
+            if TotalGameCount > 5000:
+                torch.save(Model1P.state_dict(),"Model_EZero/Model1P_EZero.model")
+                env.close()
+                exit()
             TotalGameCount += 1
         #2Pの勝利
         if State1P_tmp[2] <= 0:
@@ -159,7 +164,7 @@ for episode in range(episodes+1):
             env.step()
         except:
             #ゲームが外部から切られたら保存して終了する
-            torch.save(Model1P.state_dict(),"Model_EZero/Model1P")
+            torch.save(Model1P.state_dict(),"Model_EZero/Model1P_EZero.model")
             #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
             torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.onnx")
             exit()
@@ -217,7 +222,7 @@ for episode in range(episodes+1):
                 
                
 #モデルを保存
-torch.save(Model1P.state_dict(),"Model_EZero/Model1P")
+torch.save(Model1P.state_dict(),"Model_EZero/Model1P_EZero.model")
 #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
 torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model_EZero/Model1P.onnx")
 #環境のシャットダウン(プログラム終了)
