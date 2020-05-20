@@ -112,10 +112,8 @@ for episode in range(episodes+1):
         #各エージェントごとのStepResultを取得
         step_results = [batched_step_results[int(agent_id)].get_agent_step_result(int(agent_id)) for agent_id in agent_ids]
         #observation値を取得 (状態に相当)
-        #observations_from_batched_step_results = [batched_step_result.obs for batched_step_result in batched_step_results]
         observations_from_step_results = [step_result.obs for step_result in step_results]
         #報酬を取得
-        #rewards_from_batched_step_results = [batched_step_result.reward for batched_step_result in batched_step_results]
         rewards_from_step_results = [step_result.reward for step_result in step_results]
         Reward1P = rewards_from_step_results[0]
         Reward2P = rewards_from_step_results[1]
@@ -189,8 +187,8 @@ for episode in range(episodes+1):
             env.step()
         except:
             #ゲームが外部から切られたら保存して終了する
-            torch.save(Model1P.state_dict(),"Model/Model1P")
-            torch.save(Model2P.state_dict(),"Model/Model2P")
+            torch.save(Model1P.state_dict(),"Model/Model1P.pth")
+            torch.save(Model2P.state_dict(),"Model/Model2P.pth")
             #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
             torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.onnx")
             torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model/Model2P.onnx")
@@ -285,8 +283,8 @@ for episode in range(episodes+1):
                 Memory_2P.load(Experience2P)
                
 #モデルを保存
-torch.save(Model1P.state_dict(),"Model/Model1P")
-torch.save(Model2P.state_dict(),"Model/Model2P")
+torch.save(Model1P.state_dict(),"Model/Model1P.pth")
+torch.save(Model2P.state_dict(),"Model/Model2P.pth")
 #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
 torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P),"Model/Model1P.onnx")
 torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P),"Model/Model2P.onnx")

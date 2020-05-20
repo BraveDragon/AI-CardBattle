@@ -34,17 +34,25 @@ class ReplayMemory(object):
     def length(self):
         return len(self.memory)
 
-#更新対象となるネットワーク
 Devise = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-Model1P = DQNModel.Model.to(Devise)
-Model2P = EZeroModel.Model.to(Devise)
+Model1P = DQNModel()
+Model2P = EZeroModel()
+Model1P.load_state_dict(torch.load("Model1P.model"))
+Model2P.load_state_dict(torch.load("Model1P_EZero.model"))
+Model1P.to(Devise)
+Model2P.to(Devise)
 #レーティング評価を行うためのクラス
 Agent1P = EloCompetitor()
 Agent2P = EloCompetitor()
 #ゲーム回数のカウント((GameCount_ResultView) 回ごとに結果を出力)
 GameCount = 0
 #何回目のゲームごとに結果を出力するか
-GameCount_ResultView = 10
+GameCount_ResultView = 100
+#結果出力の累計回数
+ViewCount = 0
+#1P,2Pそれぞれの勝利回数
+Winning_1P = 0
+Winning_2P = 0
 #更新を計算するためのモデル
 Model1P_Target = DQNModel.Model.to(Devise)
 Model2P_Target = EZeroModel.Model.to(Devise)
@@ -113,7 +121,6 @@ for episode in range(episodes+1):
         #observation値を取得 (状態に相当)
         observations_from_step_results = [step_result.obs for step_result in step_results]
         #報酬を取得
-        #rewards_from_batched_step_results = [batched_step_result.reward for batched_step_result in batched_step_results]
         rewards_from_step_results = [step_result.reward for step_result in step_results]
         Reward1P = rewards_from_step_results[0]
         Reward2P = rewards_from_step_results[1]
@@ -121,19 +128,34 @@ for episode in range(episodes+1):
         State2P = observations_from_step_results[1]
         State1P_tmp = State1P[0]
         State2P_tmp = State2P[0]
+        #2Pの勝利
         if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0:
              Agent2P.beat(Agent1P)
              GameCount += 1
+        #1Pの勝利
         if State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
              Agent1P.beat(Agent2P)
              GameCount += 1
-        #レーティングを表示
+        #レーティングを書き出し
+        with open("Model\DQNModel1PRating.csv", "a") as f:
+            f.write(str(TotalGameCount)+","+str(Agent1P.rating)+"\n")
+        with open("Model_EZero/Model2PRating.csv", "a") as f:
+            f.write(str(TotalGameCount)+","+str(Agent2P.rating)+"\n")
+        #レーティングを表示(表示したらGameCount,Winning_1P,Winning_2Pをリセット)
         if GameCount > GameCount_ResultView:
-             print("Rating : " + str(Agent1P.rating) + " | " + str(Agent2P.rating) )
-             GameCount = 0
+            ViewCount += 1
+            print("Rating : " + str(Agent1P.rating)+" "+str(Winning_1P / GameCount_ResultView)+ " | " + str(Agent2P.rating) +" "+str(Winning_2P / GameCount_ResultView))
+            with open("Model\DQNWinRate.csv","a") as f:
+                f.write(str(ViewCount)+","+str(Winning_1P / GameCount_ResultView)+"\n")
+            with open("Model_EZero/EZeroWinRate_2P.csv","a") as f:
+                f.write(str(ViewCount)+","+str(Winning_2P / GameCount_ResultView)+"\n")
+            GameCount = 0
+            Winning_1P = 0
+            Winning_2P = 0
         if epsiron > np.random.rand():
             action1P = np.random.randn(5)
-            action2P = np.random.randn(5)
+            pass
+        action2P = np.random.randn(5)
         elif Memory_1P.length() > batch_size and Memory_2P.length() > batch_size:
             Raw_Inputs1P = Memory_1P.sample(batch_size)
             Inputs1P = []
