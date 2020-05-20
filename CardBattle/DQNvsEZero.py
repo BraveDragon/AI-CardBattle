@@ -35,8 +35,8 @@ class ReplayMemory(object):
         return len(self.memory)
 
 Devise = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-Model1P = DQNModel()
-Model2P = EZeroModel()
+Model1P = DQNModel.Model
+Model2P = EZeroModel.Model
 Model1P.load_state_dict(torch.load("Model1P.model"))
 Model2P.load_state_dict(torch.load("Model1P_EZero.model"))
 Model1P.to(Devise)
@@ -46,6 +46,8 @@ Agent1P = EloCompetitor()
 Agent2P = EloCompetitor()
 #ゲーム回数のカウント((GameCount_ResultView) 回ごとに結果を出力)
 GameCount = 0
+#累計ゲーム回数のカウント
+TotalGameCount = 0
 #何回目のゲームごとに結果を出力するか
 GameCount_ResultView = 100
 #結果出力の累計回数
@@ -128,14 +130,21 @@ for episode in range(episodes+1):
         State2P = observations_from_step_results[1]
         State1P_tmp = State1P[0]
         State2P_tmp = State2P[0]
+        if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0 or State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
+            if TotalGameCount > 6000:
+                env.close()
+                exit()
+            TotalGameCount += 1
         #2Pの勝利
         if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0:
-             Agent2P.beat(Agent1P)
-             GameCount += 1
+            Agent2P.beat(Agent1P)
+            Winning_2P += 1
+            GameCount += 1
         #1Pの勝利
         if State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
-             Agent1P.beat(Agent2P)
-             GameCount += 1
+            Agent1P.beat(Agent2P)
+            Winning_1P += 1
+            GameCount += 1
         #レーティングを書き出し
         with open("Model\DQNModel1PRating.csv", "a") as f:
             f.write(str(TotalGameCount)+","+str(Agent1P.rating)+"\n")
@@ -152,10 +161,11 @@ for episode in range(episodes+1):
             GameCount = 0
             Winning_1P = 0
             Winning_2P = 0
+        
+        action2P = np.random.randn(5)
         if epsiron > np.random.rand():
             action1P = np.random.randn(5)
             pass
-        action2P = np.random.randn(5)
         elif Memory_1P.length() > batch_size and Memory_2P.length() > batch_size:
             Raw_Inputs1P = Memory_1P.sample(batch_size)
             Inputs1P = []

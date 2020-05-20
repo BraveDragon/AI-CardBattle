@@ -35,8 +35,8 @@ class ReplayMemory(object):
         return len(self.memory)
 
 Devise = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-Model1P = EZeroModel()
-Model2P = DQNModel()
+Model1P = EZeroModel.Model
+Model2P = DQNModel.Model
 Model1P.load_state_dict(torch.load("Model1P_EZero.model"))
 Model2P.load_state_dict(torch.load("Model1P.model"))
 Model1P.to(Devise)
@@ -131,15 +131,20 @@ for episode in range(episodes+1):
         State1P_tmp = State1P[0]
         State2P_tmp = State2P[0]
         if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0 or State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
+            if TotalGameCount > 6000:
+                env.close()
+                exit()
             TotalGameCount += 1
         #2Pの勝利
         if State1P_tmp[2] <= 0 or State2P_tmp[2] <= 0:
-             Agent2P.beat(Agent1P)
-             GameCount += 1
+            Agent2P.beat(Agent1P)
+            Winning_2P += 1
+            GameCount += 1
         #1Pの勝利
         if State1P_tmp[6] <= 0 or State2P_tmp[6] <= 0:
-             Agent1P.beat(Agent2P)
-             GameCount += 1
+            Agent1P.beat(Agent2P)
+            Winning_1P += 1
+            GameCount += 1
         #レーティングを書き出し
         with open("Model_EZero/Model1PRating.csv", "a") as f:
             f.write(str(TotalGameCount)+","+str(Agent1P.rating)+"\n")
@@ -157,10 +162,10 @@ for episode in range(episodes+1):
             Winning_1P = 0
             Winning_2P = 0
 
+        action1P = np.random.randn(5)
         if epsiron > np.random.rand():
             action2P = np.random.randn(5)
             pass
-        action1P = np.random.randn(5)
         elif Memory_1P.length() > batch_size and Memory_2P.length() > batch_size:
             Raw_Inputs1P = Memory_1P.sample(batch_size)
             Inputs1P = []
