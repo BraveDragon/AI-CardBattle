@@ -13,8 +13,8 @@ y2P = Data2P[1]
 x2P_DQN = Data2P_DQN[0]
 y2P_DQN = Data2P_DQN[1]
 
-plt.xlabel("Games")
-plt.ylabel("Rating")
+plt.xlabel("Games÷100")
+plt.ylabel("WinRate")
 plt.plot(x2P,y2P,label="2P")
 plt.plot(x2P_DQN,y2P_DQN,label="2P_DQN")
 plt.legend()
