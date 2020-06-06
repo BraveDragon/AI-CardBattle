@@ -28,7 +28,7 @@ class ReplayMemory(object):
         return ReturnSample
 
     def length(self):
-        return len(self.memory)
+        return len(self.memory)/batch_size
 
 #更新対象となるネットワーク
 Devise = "cuda" if torch.cuda.is_available() else "cpu"
@@ -143,12 +143,10 @@ for episode in range(episodes+1):
         action2P = np.random.randn(5)
         if Memory_1P.length() > batch_size and Memory_2P.length() > batch_size:
             Raw_Inputs1P = Memory_1P.sample(batch_size)
-            Inputs1P = []
-            for Ret_Input1P in range(len(Raw_Inputs1P)):
-                Inputs1P.extend(Ret_Inputs1P[Ret_Input1P])
-            Inputs1P = np.array(Inputs1P)
+            Inputs1P = np.array(Raw_Inputs1P)
+            Inputs1P = Inputs1P.reshape((32,60))
             Load_Inputs1P = []
-            for Input_itr in Inputs1P:
+            for Input_itr in Inputs1P[:,:]:
                 if hasattr(Input_itr, "__iter__"):
                     Load_Inputs1P.extend(Input_itr)
                 else:
@@ -156,13 +154,11 @@ for episode in range(episodes+1):
             Load_Inputs1P = np.array(Load_Inputs1P,dtype=np.float32)
             ret_action1P = Model1P(torch.from_numpy(Load_Inputs1P).to(Devise).float())
 
-            Raw_Input2P = Memory_2P.sample(batch_size)
-            Inputs2P = []
-            for Ret_Input2P in range(len(Raw_Input2P)):
-                Inputs2P.extend(Raw_Input2P[Ret_Input2P])
-            Inputs2P = np.array(Inputs2P)
+            Raw_Inputs2P = Memory_2P.sample(batch_size)
+            Inputs2P = np.array(Raw_Inputs2P)
+            Inputs2P = np.array((32,60))
             Load_Inputs2P = []
-            for Input_itr in Inputs2P:
+            for Input_itr in Inputs2P[:,:]:
                 if hasattr(Input_itr, "__iter__"):
                     Load_Inputs2P.extend(Input_itr)
                 else:
@@ -185,8 +181,8 @@ for episode in range(episodes+1):
             torch.save(Model1P.state_dict(),"Model_EZero/Model1P.pth")
             torch.save(Model2P.state_dict(),"Model_EZero/Model2P.pth")
             #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-            torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P).to(Devise).float(),"Model_EZero/Model1P.onnx")
-            torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P).to(Devise).float(),"Model_EZero/Model2P.onnx")
+            # torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P).to(Devise).float(),"Model_EZero/Model1P.onnx")
+            # torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P).to(Devise).float(),"Model_EZero/Model2P.onnx")
             exit()
 
         #各エージェントごとのBatchedStepResultを取得
@@ -283,7 +279,7 @@ for episode in range(episodes+1):
 torch.save(Model1P.state_dict(),"Model_EZero/Model1P.pth")
 torch.save(Model2P.state_dict(),"Model_EZero/Model2P.pth")
 #モデルをOnnx型式でも保存する(Unityなどから呼び出せるようにするため)
-torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P).to(Devise).float(),"Model_EZero/Model1P.onnx")
-torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P).to(Devise).float(),"Model_EZero/Model2P.onnx")
+# torch.onnx.export(Model1P,torch.from_numpy(Load_Inputs1P).to(Devise).float(),"Model_EZero/Model1P.onnx")
+# torch.onnx.export(Model2P,torch.from_numpy(Load_Inputs2P).to(Devise).float(),"Model_EZero/Model2P.onnx")
 #環境のシャットダウン(プログラム終了)
 env.close()
