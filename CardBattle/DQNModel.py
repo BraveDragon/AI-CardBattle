@@ -2,7 +2,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-Inputs = 1920
+Inputs = 1664
 Outputs = 5
 #学習に使用するモデル
 Model = nn.Sequential(

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Counter
   m_EditorClassIdentifier: 
   CardName: Counter
-  id: 3
+  id: 4
+  Cardgraph: {fileID: 0}
   Effect:
     m_PersistentCalls:
       m_Calls:

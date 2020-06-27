@@ -5,7 +5,8 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Linq;
-using MLAgents;
+using Unity.MLAgents;
+using System;
 
 public class GameManager : MonoBehaviour {
 
@@ -23,11 +24,13 @@ public class GameManager : MonoBehaviour {
     
     
     public static bool Is1PFirst = true; //1Pが先攻か
+    public static bool IsNewDealt_1P = false;
+    public static bool IsNewDealt_2P = false;
     
     public static Card SelectedCard { get; private set; } //1Pが選択したカード(初期値はnull)
-    private static GameObject SelectedCard_Object; //1Pが選択したカードのオブジェクト
+    public static GameObject SelectedCard_Object { get; private set; } //1Pが選択したカードのオブジェクト
     public static Card SelectedCard_2P { get; private set; } //2Pが選択したカード(初期値はnull)
-    private static GameObject SelectedCard_2P_Object; //2Pが選択したカードのオブジェクト
+    public static GameObject SelectedCard_2P_Object { get; private set; } //2Pが選択したカードのオブジェクト
 
 
     public enum Steps : byte{
@@ -38,6 +41,7 @@ public class GameManager : MonoBehaviour {
         Action,//演出
         End,//ターン終了
         Result //結果表示
+        
     }
 
     private void Awake()
@@ -84,33 +88,18 @@ public class GameManager : MonoBehaviour {
         if(step == Steps.Result){
             Result();
         }
+        
     }
 
     // Update is called once per frame
     void Update() {
-        //デバッグ用
-        //if (Input.GetKeyDown(KeyCode.Space) == true) { user = !user; }
-        //if (Input.GetKeyDown(KeyCode.Q) == true) { CardResources.AllCards[0].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.W) == true) { CardResources.AllCards[1].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.E) == true) { CardResources.AllCards[2].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.R) == true) { CardResources.AllCards[3].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.T) == true) { CardResources.AllCards[4].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.Y) == true) { CardResources.AllCards[5].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.U) == true) { CardResources.AllCards[6].Effect.Invoke(true); }
-        //if (Input.GetKeyDown(KeyCode.I) == true) { CardResources.AllCards[7].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.O) == true) { CardResources.AllCards[8].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.P) == true) { CardResources.AllCards[9].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.A) == true) { CardResources.AllCards[10].Effect.Invoke(user); }
-        //if (Input.GetKeyDown(KeyCode.Q) == true) { player1.HP = 0; }
-        //if (Input.GetKeyDown(KeyCode.W) == true) { player2.HP = 0; }
-
         Algorithm();
 
     }
 
     private void StandBy() {
         //環境の初期化を行う
-        if (Random.Range(0, 2) == 0) { Is1PFirst = true; }
+        if (UnityEngine.Random.Range(0, 2) == 0) { Is1PFirst = true; }
         else { Is1PFirst = false; }
         ResultText.text = "";
         player1 = new Player(true);
@@ -128,20 +117,21 @@ public class GameManager : MonoBehaviour {
             {
                 Destroy(cardText.gameObject);
             }
-        
 
-        CardInitilize();
+        //各種フラグを初期化する
+        IsNewDealt_1P = false;
+        IsNewDealt_2P = false;
+        CardInitialize();
 
         step = Steps.KeyWait;
     }
     
 
     //最初のカードを配る
-    public static void CardInitilize(){
+    public static void CardInitialize(){
         
 
-        for (byte i = 0; i < 5; i++)
-        {
+        for (byte i = 0; i < Player.StartHand; i++)　{
             GameManager.player1.hands.AddFirst(CardResources.OneDraw());
             GameManager.player2.hands.AddFirst(CardResources.OneDraw());
 
@@ -151,34 +141,40 @@ public class GameManager : MonoBehaviour {
         List<CardText> cardtexts2P = new List<CardText>();
         Card[] player1_hand = player1.hands.ToArray();
         Card[] player2_hand = player2.hands.ToArray();
-
         
 
-        
+
+
         for (byte i = 0; i < player1_hand.Length; i++)
-            {
+        {
             cardtexts1P.AddRange(Field_1P_tmp.GetComponentsInChildren<CardText>());
-            if (player1.hands.Count <= player1_hand.Length) {
+            if (player1.hands.Count <= player1_hand.Length)
+            {
                 ViewCard = Instantiate(ViewCards_tmp, Field_1P_tmp.transform, false);
                 ViewCard.GetComponent<CardText>().card_showing = player1_hand[i];
                 ViewCard.GetComponent<CardText>().text.text = player1_hand[i].CardName;
                 ViewCard.GetComponent<CardText>().is1P = true;
             }
-   
-            }
-           
-            for (byte i = 0; i < player2_hand.Length; i++) {
+
+        }
+
+        for (byte i = 0; i < player2_hand.Length; i++)
+        {
             cardtexts2P.AddRange(Field_2P_tmp.GetComponentsInChildren<CardText>());
-            if (player2.hands.Count <= player2_hand.Length) { 
+            if (player2.hands.Count <= player2_hand.Length)
+            {
                 ViewCard = Instantiate(ViewCards_tmp, Field_2P_tmp.transform, false);
                 ViewCard.GetComponent<CardText>().card_showing = player2_hand[i];
                 ViewCard.GetComponent<CardText>().text.text = player2_hand[i].CardName;
+                ViewCard.GetComponent<CardText>().text.enabled = false;
                 ViewCard.GetComponent<CardText>().is1P = false;
-                   }
+            }
 
-               }
+        }
 
-       
+
+
+
     }
 
     void KeyWait() {
@@ -187,7 +183,7 @@ public class GameManager : MonoBehaviour {
            SelectedCard_2P != null &&
            SelectedCard_2P_Object != null) {
 
-            step = Steps.Main;
+            step = Steps.Action;
 
         }
 
@@ -199,21 +195,53 @@ public class GameManager : MonoBehaviour {
        
             Card draw1P = CardResources.OneDraw();
             GameObject card1P;
-            player1.hands.AddFirst(draw1P);
+        if (Field_1P_tmp.GetComponentsInChildren<CardText>().Length < Player.MaxHand &&
+            IsNewDealt_1P == false){
             card1P = Instantiate(ViewCards, Field_1P.transform, false);
             card1P.GetComponent<CardText>().card_showing = draw1P;
             card1P.GetComponent<CardText>().is1P = true;
-
+            step = Steps.KeyWait;
+        }
+        if (Field_2P_tmp.GetComponentsInChildren<CardText>().Length < Player.MaxHand &&
+            IsNewDealt_2P == false)
+        {
             Card draw2P = CardResources.OneDraw();
             GameObject card2P;
-            player2.hands.AddFirst(draw2P);
             card2P = Instantiate(ViewCards, Field_2P.transform, false);
             card2P.GetComponent<CardText>().card_showing = draw2P;
             card2P.GetComponent<CardText>().is1P = false;
-
             step = Steps.KeyWait;
-        
+        }
 
+        IsNewDealt_1P = false;
+        IsNewDealt_2P = false;
+
+    }
+
+    void Action() {
+        //演出を行う
+        if (SelectedCard_2P_Object != null) {
+            SelectedCard_2P_Object.GetComponent<CardText>().isfront = true;
+        }
+        //AIを学習させる時は一時停止しない
+        if (SceneManager.GetActiveScene().name == "Main") {
+            Invoke("showcard", 1.0f);
+        } else {
+             showcard();
+        }
+       
+        step = Steps.Main;
+    }
+
+
+    void showcard() {
+        Destroy(SelectedCard_Object);
+        Destroy(SelectedCard_2P_Object);
+        SelectedCard_Object = null;
+        SelectedCard_2P_Object = null;
+        SelectedCard = null;
+        SelectedCard_2P = null;
+        
     }
 
     void Main(){
@@ -229,10 +257,8 @@ public class GameManager : MonoBehaviour {
             Main2P();//2Pの行動
             Main1P();//1Pの行動
         }
-  
-        SelectedCard = null;
-        SelectedCard_2P = null;
-        step = Steps.Action;
+        
+        step = Steps.End;
 
     }
 
@@ -240,8 +266,7 @@ public class GameManager : MonoBehaviour {
     void Main1P(){
         if (SelectedCard != null) {
             SelectedCard.Effect.Invoke(true); //効果を使用
-            Debug.Log("1P：" + SelectedCard.CardName);
-            player1.hands.Remove(SelectedCard);
+           
             
         }
 
@@ -251,8 +276,7 @@ public class GameManager : MonoBehaviour {
     void Main2P(){
         if (SelectedCard_2P != null) {
             SelectedCard_2P.Effect.Invoke(false);
-            Debug.Log("2P：" + SelectedCard_2P.CardName);
-            player2.hands.Remove(SelectedCard_2P);
+            
             
 
         }
@@ -264,23 +288,18 @@ public class GameManager : MonoBehaviour {
     
 
     
-    void Action(){
-        //演出を行う
-        Destroy(SelectedCard_Object);
-        Destroy(SelectedCard_2P_Object);
-        SelectedCard_Object = null;
-        SelectedCard_2P_Object = null;
-        step = Steps.End;
-        
-    }
+   
+
     //ターン終了時の処理
     void End(){
-            //防御状態を解除
-            player1.defendedflag = false;
+        
+        
+        //防御状態を解除
+        player1.defendedflag = false;
             player2.defendedflag = false;
-
             
-            if (player1.HP <= 0)
+
+        if (player1.HP <= 0)
             {
                 //1P敗北時の処理
                 ResultText.text = "2P　WIN!";
@@ -299,7 +318,10 @@ public class GameManager : MonoBehaviour {
             //ターンを進める
             turn += 1;
             //ステップを最初に戻す
-            step = Steps.StartStep;
+            if (SelectedCard_Object == null &&
+                SelectedCard_2P_Object == null) {
+                step = Steps.StartStep;
+            }
         }
             
         
@@ -322,56 +344,20 @@ public class GameManager : MonoBehaviour {
 
     //選択したカードを受け取る
     public static void SetAction(CardText selectedcard, bool is1P) {
-        if(is1P == true) {
-            SelectedCard = selectedcard.card_showing;
-            SelectedCard_Object = selectedcard.gameObject;
-        }
-        if (is1P == false){
-            SelectedCard_2P = selectedcard.card_showing;
-            SelectedCard_2P_Object = selectedcard.gameObject;
-        }
-
+            if (is1P == true)
+            {
+                SelectedCard = selectedcard.card_showing;
+                SelectedCard_Object = selectedcard.gameObject;
+            }
+            if (is1P == false)
+            {
+                SelectedCard_2P = selectedcard.card_showing;
+                SelectedCard_2P_Object = selectedcard.gameObject;
+            }
+        
+       
     }
 
-
-
-    //public static void ShowCard_1P() {
-    //    GameObject ViewCard;
-    //    List<CardText> cardtexts1P = new List<CardText>();
-    //    Card[] player1_hand = player1.hands.ToArray();
-
-    //    for (byte i = 0; i < player1_hand.Length; i++) {
-    //        cardtexts1P.AddRange(Field_1P_tmp.GetComponentsInChildren<CardText>());
-    //        if (player1.hands.Count <= player1_hand.Length) {
-    //            ViewCard = Instantiate(ViewCards_tmp, Field_1P_tmp.transform, false);
-    //            ViewCard.GetComponent<CardText>().card_showing = player1_hand[i];
-    //            ViewCard.GetComponent<CardText>().text.text = player1_hand[i].CardName;
-    //            ViewCard.GetComponent<CardText>().is1P = true;
-    //        }
-
-    //    }
-    //}
-
-    //public static void ShowCard_2P()
-    //{
-    //    GameObject ViewCard;
-    //    List<CardText> cardtexts2P = new List<CardText>();
-    //    Card[] player2_hand = player2.hands.ToArray();
-
-    //    for (byte i = 0; i < player2_hand.Length; i++)
-    //    {
-    //        cardtexts2P.AddRange(Field_2P_tmp.GetComponentsInChildren<CardText>());
-    //        if (player2.hands.Count <= player2_hand.Length)
-    //        {
-    //            ViewCard = Instantiate(ViewCards_tmp, Field_2P_tmp.transform, false);
-    //            ViewCard.GetComponent<CardText>().card_showing = player2_hand[i];
-    //            ViewCard.GetComponent<CardText>().text.text = player2_hand[i].CardName;
-    //            ViewCard.GetComponent<CardText>().is1P = false;
-    //        }
-
-    //    }
-    //}
-    //ステップをOne-hot形式で返す
 
     public static int[] GetOnehotStep()
     {

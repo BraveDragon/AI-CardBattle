@@ -1,39 +1,36 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CardText : MonoBehaviour
-{
-    public Text text;
+public class CardText : MonoBehaviour {
+    public Text text; //カード名
     public bool is1P;//1Pか？(2Pならfalse)
     public Card card_showing; //表示するカード
+    [SerializeField] private Image cardfront;
+    [NonSerialized] public bool isfront; //カードが表向きか？
 
     private void Start()
     {
         text.text = card_showing.CardName;
+        isfront = is1P;
+        text.enabled = isfront;
+        cardfront.enabled = isfront;
+    }
+    private void Update(){
+        text.enabled = isfront;
+        cardfront.enabled = isfront;
     }
 
     public void OnClicked()
     {
         if (is1P == true)
         {
-            GameManager.SetAction(this,is1P);
+            GameManager.SetAction(this, true);
 
 
         }
     }
 
-    //カードを出力
-    //public void ReturnCard(bool is1P){
-    //    if (is1P == true) {
-    //        GameManager.SelectedCard = card_showing;
-    //        GameManager.SelectedCard_Object = this.gameObject;
-    //    }
-    //    if(is1P == false) {
-    //        GameManager.SelectedCard_2P = card_showing;
-    //        GameManager.SelectedCard_2P_Object = this.gameObject;
-
-    //    }
-    //}
 }

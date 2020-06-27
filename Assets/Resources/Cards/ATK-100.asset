@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: ATK-100
   m_EditorClassIdentifier: 
   CardName: ATK-100
-  id: 1
+  id: 2
+  Cardgraph: {fileID: 0}
   Effect:
     m_PersistentCalls:
       m_Calls:

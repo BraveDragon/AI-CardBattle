@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Attack
   m_EditorClassIdentifier: 
   CardName: Attack
-  id: 2
+  id: 3
+  Cardgraph: {fileID: 0}
   Effect:
     m_PersistentCalls:
       m_Calls:

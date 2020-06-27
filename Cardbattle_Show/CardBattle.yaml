@@ -1,0 +1,7 @@
+environments:
+- <CardBattle>:
+     expected_reward: <expected-reward-float>
+     description: <the-environment-of-the-simple-TCG>
+     linux_url: <Zips>
+     darwin_url: <Zips>
+     win_url: <Zips>
