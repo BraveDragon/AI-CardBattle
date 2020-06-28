@@ -1641,7 +1641,7 @@ MonoBehaviour:
     VectorActionSize: 05000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: d4162e08a2ce9d84191f607b1c375466, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 1
   m_BehaviorName: CardBattle

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cb9dd2c53a1f484896da804a9fe1547, type: 3}
   m_Name: Attack
   m_EditorClassIdentifier: 
-  CardName: Attack
+  CardName: "\u30D6\u30EC\u30FC\u30C9"
   id: 3
   Cardgraph: {fileID: 0}
   Effect:

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cb9dd2c53a1f484896da804a9fe1547, type: 3}
   m_Name: Gamble
   m_EditorClassIdentifier: 
-  CardName: Gamble
+  CardName: "\u30AE\u30E3\u30F3\u30D6\u30EB"
   id: 9
   Cardgraph: {fileID: 0}
   Effect:

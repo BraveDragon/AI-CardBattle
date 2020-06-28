@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cb9dd2c53a1f484896da804a9fe1547, type: 3}
   m_Name: ATK+200
   m_EditorClassIdentifier: 
-  CardName: ATK+200
+  CardName: "\u30C1\u30E3\u30FC\u30B8"
   id: 1
   Cardgraph: {fileID: 0}
   Effect:

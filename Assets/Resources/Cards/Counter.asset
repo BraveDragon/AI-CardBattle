@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cb9dd2c53a1f484896da804a9fe1547, type: 3}
   m_Name: Counter
   m_EditorClassIdentifier: 
-  CardName: Counter
+  CardName: "\u30AB\u30A6\u30F3\u30BF\u30FC"
   id: 4
   Cardgraph: {fileID: 0}
   Effect:

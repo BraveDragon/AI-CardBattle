@@ -33,3 +33,7 @@ CardBattle_vsHeuristic2P
 Library
 StateCache
 __pycache__
+Temp
+/CardBattle2.sln
+/Library
+/.vscode

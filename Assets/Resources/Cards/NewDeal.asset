@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cb9dd2c53a1f484896da804a9fe1547, type: 3}
   m_Name: NewDeal
   m_EditorClassIdentifier: 
-  CardName: NewDeal
+  CardName: "\u30C1\u30A7\u30F3\u30B8"
   id: 12
   Cardgraph: {fileID: 0}
   Effect:
