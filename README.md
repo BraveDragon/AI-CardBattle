@@ -38,6 +38,7 @@ Apache License 2.0
 Copyright 2017 Unity Technologies
 
 Apache License 2.0のライセンス条文：
+
 URL: http://www.apache.org/licenses/LICENSE-2.0
 
 ### Chainer
