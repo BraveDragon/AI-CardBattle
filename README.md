@@ -9,8 +9,10 @@ AIにはUnity ML-Agentsを利用しました。
 
 ## ＜使用したライブラリ・ツール＞
 
-Unity : 2019.3.15f1
-Unity ML-Agents : Release 3
+Unity : 2019.3.15f1 
+
+Unity ML-Agents : Release 3  
+
 Python : Python 3.7.7
 
 ## 実際のプレイ動画
