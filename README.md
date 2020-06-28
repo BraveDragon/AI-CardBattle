@@ -28,7 +28,7 @@ Python : Python 3.7.7
 
 This Repository includes the work that is distributed in the Apache License 2.0.
 Apache License 2.0のライセンス条文：
-URL:[http://www.apache.org/licenses/LICENSE-2.0] (http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0)
+URL: http://www.apache.org/licenses/LICENSE-2.0
 
 ### Unity ML-Agents
 
@@ -36,7 +36,7 @@ Apache License 2.0
 Copyright 2017 Unity Technologies
 
 Apache License 2.0のライセンス条文：
-URL:[http://www.apache.org/licenses/LICENSE-2.0] (http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0)
+URL: http://www.apache.org/licenses/LICENSE-2.0
 
 ### Chainer
 
@@ -47,7 +47,7 @@ Copyright (c) 2015 Preferred Infrastructure, Inc.
 Copyright (c) 2015 Preferred Networks, Inc.
 
 MIT Licence
-URL:[https://opensource.org/licenses/mit-license.php] (https://opensource.org/licenses/mit-license.php MIT Licence)
+URL: https://opensource.org/licenses/mit-license.php
 
 ### CuPy
 
@@ -58,7 +58,7 @@ Copyright (c) 2015 Preferred Infrastructure, Inc.
 Copyright (c) 2015 Preferred Networks, Inc.
 
 MIT Licence
-URL:[https://opensource.org/licenses/mit-license.php](<https://opensource.org/licenses/mit-license.php> MIT Licence)
+URL: https://opensource.org/licenses/mit-license.php
 
 ### NumPy
 
