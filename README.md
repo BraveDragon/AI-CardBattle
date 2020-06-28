@@ -51,6 +51,7 @@ Copyright (c) 2015 Preferred Infrastructure, Inc.
 Copyright (c) 2015 Preferred Networks, Inc.
 
 MIT Licence
+
 URL: https://opensource.org/licenses/mit-license.php
 
 ### CuPy
@@ -62,6 +63,7 @@ Copyright (c) 2015 Preferred Infrastructure, Inc.
 Copyright (c) 2015 Preferred Networks, Inc.
 
 MIT Licence
+
 URL: https://opensource.org/licenses/mit-license.php
 
 ### NumPy
