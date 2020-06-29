@@ -2,7 +2,6 @@
 import chainer
 import chainer.functions as F
 import chainer.links as L
-import chainerrl
 
 Inputs = 23
 Outputs = 5
