@@ -7,6 +7,18 @@ AIにはUnity ML-Agentsを利用しました。
 
 ## ＜内容＞
 
+- Assetsフォルダ：ゲーム作成に使用したファイルが入っています。
+
+- CardBattleフォルダ：AIの学習用環境が入っています。
+
+- CardBattle_Linuxフォルダ：完成済みゲームのLinuxビルドです。
+
+- CardBattle_Macフォルダ：完成済みゲームのMacビルドです。
+
+- CardBattle_WebGLフォルダ：完成済みゲームのWebGLビルドです。
+
+- CardBattle_Showフォルダ：完成済みゲームのWindowsビルドです。
+
 ## ＜使用したライブラリ・ツール＞
 
 Unity : 2019.3.15f1 
