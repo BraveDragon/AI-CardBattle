@@ -4,7 +4,6 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 from chainer.serializers import save_npz
-import numpy as np
 import cupy as cp
 import Memory
 import pickle
@@ -104,10 +103,12 @@ for episode in range(episodes+1):
            step_results[0].obs[0][0][6] <= 0 or step_results[1].obs[0][0][6] <= 0:
             TotalGameCount += 1
         
-        if epsiron > np.random.rand() or \
+        if epsiron > cp.random.rand() or \
            Memory1P.length() < batch_size and Memory2P.length() < batch_size:
-            action1P = np.random.randn(5)
-            action2P = np.random.randn(5)
+            action1P = cp.random.randn(5)
+            action2P = cp.random.randn(5)
+            action1P = chainer.cuda.to_cpu(action1P)
+            action2P = chainer.cuda.to_cpu(action2P)
         else:
             RawInput1P = Memory1P.sample(batch_size)
             RawInput2P = Memory2P.sample(batch_size)

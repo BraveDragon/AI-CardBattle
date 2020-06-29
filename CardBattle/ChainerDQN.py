@@ -3,7 +3,6 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 import chainerrl
-import numpy as np
 
 Inputs = 23
 Outputs = 5
