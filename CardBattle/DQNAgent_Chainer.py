@@ -6,7 +6,6 @@ import chainer.links as L
 from chainer.serializers import save_npz
 import cupy as cp
 import Memory
-import pickle
 import ChainerDQN
 
 MaxSteps = 500
@@ -136,11 +135,6 @@ for episode in range(episodes+1):
             env.step()
         except:
             #ゲームが外部から切られたら保存して終了する
-            with open("Memory1P.pkl", mode="wb") as Mem1P:
-                pickle.dump(Memory1P,Mem1P)
-            
-            with open("Memory2P.pkl",mode="wb") as Mem2P:
-                pickle.dump(Memory2P,Mem2P)
             Model1P.to_cpu()
             Model2P.to_cpu()
             save_npz('Model1P.npz',Model1P)
@@ -169,13 +163,7 @@ for episode in range(episodes+1):
                 for i in NextState2P_tmp:
                     if len(i) > 0:
                         NextState2P.extend(i.tolist()[0])
-            except:
-                with open("Memory1P.pkl", mode="wb") as Mem1P:
-                    pickle.dump(Memory1P,Mem1P)
-            
-                with open("Memory2P.pkl",mode="wb") as Mem2P:
-                    pickle.dump(Memory2P,Mem2P)
-                    
+            except: 
                 Model1P.to_cpu()
                 Model2P.to_cpu()
                 save_npz('Model1P.npz',Model1P)
