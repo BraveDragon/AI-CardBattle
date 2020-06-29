@@ -37,6 +37,7 @@ cupy : 7.5.0 (CUDAのバージョン : 10.2)
 ## ＜ライセンス＞
 
 This Repository includes the work that is distributed in the Apache License 2.0.
+
 Apache License 2.0のライセンス条文：
 
 URL: http://www.apache.org/licenses/LICENSE-2.0
