@@ -47,6 +47,8 @@ cupy : 7.5.0 (CUDAのバージョン : 10.2)
 
 今後はAIのゲーム本体への組み込みが課題です。
 
+また、自作した強化学習のAIの学習はWindows環境下でしか行っていないので、他の環境下での検証も時間があればやりたいです。
+
 ## ＜ライセンス＞
 
 This Repository includes the work that is distributed in the Apache License 2.0.
@@ -58,6 +60,7 @@ URL: http://www.apache.org/licenses/LICENSE-2.0
 ### Unity ML-Agents
 
 Apache License 2.0
+
 Copyright 2017 Unity Technologies
 
 Apache License 2.0のライセンス条文：
