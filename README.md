@@ -33,7 +33,7 @@ cupy : 7.5.0 (CUDAのバージョン : 10.2)
 
 ## 実際のプレイ動画
 
-![Demoplay] (https://github.com/BraveDragon/AI-CardBattle/blob/master/DemoPlay.gif)
+![Demoplay](https://github.com/BraveDragon/AI-CardBattle/blob/master/DemoPlay.gif)
 
 ## ＜ゲームの遊び方＞
 
