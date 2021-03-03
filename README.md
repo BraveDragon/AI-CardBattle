@@ -19,6 +19,8 @@ AIにはUnity ML-Agentsを利用しました。
 
 - CardBattle_Showフォルダ：完成済みゲームのWindowsビルドです。
 
+- Dockerfile：完成済みゲームのWebGLビルドをプレイするためのDockerコンテナを生成します。詳しいプレイ方法は「プロジェクトのビルド・AIの学習方法.md」をご覧ください。
+
 ## ＜使用したライブラリ・ツール＞
 
 Unity : 2019.3.15f1 

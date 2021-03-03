@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.unity.ml-agents": "file:C:/Users/Masanari/Documents/MyFolder/ml-agents-release_3/com.unity.ml-agents",
+    "com.unity.ml-agents": "file:C:/Users/Masanari/Documents/MyFolder/ml-agents-release_6/com.unity.ml-agents",
     "com.unity.test-framework": "1.1.14",
     "com.unity.timeline": "1.2.12",
     "com.unity.ugui": "1.0.0",
