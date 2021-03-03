@@ -4,6 +4,7 @@
 強化学習について勉強したので、自分が長く使用しているUnityと組み合わせて何かゲームを作れないかと思い作成しました。
 AIにはUnity ML-Agentsを利用しました。
 さらに、Unity ML-Agents Python Low Level APIとChainerを利用して自作した強化学習のAIを学習させてみました。
+また、Dockerについても勉強したので、WebGLビルドをプレイするためのDockerコンテナを生成するためのDockerfileを作成し、リポジトリに追加しました。
 
 ## ＜内容＞
 
