@@ -7,7 +7,7 @@
     <key>CFBundleExecutable</key>
     <string>CardBattle</string>
     <key>CFBundleGetInfoString</key>
-    <string>Unity Player version 2019.3.15f1 (59ff3e03856d). (c) 2020 Unity Technologies ApS. All rights reserved.</string>
+    <string>Unity Player version 2019.4.32f1 (f88bf0bee961). (c) 2021 Unity Technologies ApS. All rights reserved.</string>
     <key>CFBundleIconFile</key>
     <string>PlayerIcon.icns</string>
     <key>CFBundleIdentifier</key>
@@ -40,6 +40,6 @@
     <key>NSPrincipalClass</key>
     <string>PlayerApplication</string>
     <key>UnityBuildNumber</key>
-    <string>59ff3e03856d</string>
+    <string>f88bf0bee961</string>
   </dict>
 </plist>

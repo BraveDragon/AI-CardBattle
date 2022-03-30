@@ -4,6 +4,8 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Sensors.Reflection;
 using System.Linq;
+using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Policies;
 
 public class PlayAgent : Agent
 {
@@ -177,19 +179,19 @@ public class PlayAgent : Agent
 
     }
 
-    public override void OnActionReceived(float[] vectorAction) {
+    public override void OnActionReceived(ActionBuffers vectorAction) {
 
         if(GameManager.step == GameManager.Steps.KeyWait) {
             //vectorActionの最大値を求める関係で要素数が2以上の時のみ処理
-            if (vectorAction.Length >= 2)
+            if (vectorAction.ContinuousActions.Length >= 2)
             {
 
 
                 byte select = 0;
-                float max = vectorAction.Max();
-                for (byte i = 0; i < vectorAction.Length; i++)
+                float max = vectorAction.ContinuousActions.Max();
+                for (byte i = 0; i < vectorAction.ContinuousActions.Length; i++)
                 {
-                    if (vectorAction[i] == max)
+                    if (vectorAction.ContinuousActions[i] == max)
                     {
                         select = i;
                         break;
@@ -279,7 +281,7 @@ public class PlayAgent : Agent
         }
     }
     
-    public override void Heuristic(float[] actionsOut)
+    public override void Heuristic(in ActionBuffers actionsOut)
     {
         if (GameManager.step == GameManager.Steps.KeyWait) {
             //共通して使用する変数類を定義+初期化
@@ -366,7 +368,7 @@ public class PlayAgent : Agent
             Hands.Clear();
         }
 
-        actionsOut = new float[0];
+        // actionsOut = new float[0];
         }
       
     }
